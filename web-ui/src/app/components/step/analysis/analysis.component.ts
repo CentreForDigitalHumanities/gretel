@@ -170,7 +170,6 @@ export class AnalysisComponent extends StepDirective<GlobalState> implements OnI
                 const metadata: TreebankMetadata[][] = await Promise.all(
                     selectedTreebanks.corpora.map(async corpus => (await corpus.corpus.treebank).details.metadata()));
                 this.metadata = metadata.flatMap(x => x);
-                this.metadata = [];  // TODO temporarily introduced this as long as metadata is not working
             });
 
         const results$ = this.state$.pipe(

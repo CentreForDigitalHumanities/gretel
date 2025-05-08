@@ -9,15 +9,15 @@
                     <ng-container *ngIf="isModifyingXPath">
                         <p class="control">
                             <a class="button is-primary" role="button"
-                               [attr.disabled]="!validXPath ? true : null" grtBalloonPosition="down"
-                               grtBalloon="Save query" (click)="updateXPath()">
+                               [attr.disabled]="!validXPath ? true : null" tooltipPosition="bottom"
+                               pTooltip="Save query" (click)="updateXPath()">
                                 <span class="icon is-large">
                                     <fa-icon [icon]="faCheck" aria-hidden="true"></fa-icon>
                                 </span>
                             </a>
                         </p>
                         <p class="control">
-                            <a class="button" role="button" grtBalloonPosition="down" grtBalloon="Reset query"
+                            <a class="button" role="button" tooltipPosition="bottom" pTooltip="Reset query"
                                (click)="resetXPath()">
                                 <span class="icon is-large">
                                     <fa-icon [icon]="faUndo" aria-hidden="true"></fa-icon>
@@ -27,7 +27,7 @@
                     </ng-container>
                     <ng-container *ngIf="!isModifyingXPath">
                         <p class="control">
-                            <a class="button" role="button" grtBalloonPosition="down" grtBalloon="Edit query"
+                            <a class="button" role="button" tooltipPosition="bottom" pTooltip="Edit query"
                                (click)="editXPath()">
                                 <span class="icon is-large">
                                     <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon>
@@ -35,16 +35,16 @@
                             </a>
                         </p>
                         <p class="control">
-                            <a class="button" role="button" grtBalloonPosition="down"
-                               grtBalloon="Download query" (click)="downloadXPath()">
+                            <a class="button" role="button" tooltipPosition="bottom"
+                               pTooltip="Download query" (click)="downloadXPath()">
                                 <span class="icon is-large">
                                     <fa-icon [icon]="faDownload" aria-hidden="true"></fa-icon>
                                 </span>
                             </a>
                         </p>
                         <p class="control">
-                            <a class="button" role="button" grtBalloonPosition="down-right"
-                               grtBalloon="Copy query to the clipboard" (click)="copyXPath()"
+                            <a class="button" role="button" tooltipPosition="bottom"
+                               pTooltip="Copy query to the clipboard" (click)="copyXPath()"
                                [ngClass]="{'is-success': xpathCopied }">
                                 <span class="icon is-large">
                                     <fa-icon [icon]="faCopy" aria-hidden="true"></fa-icon>
@@ -56,8 +56,8 @@
             </div>
             <div class="level-item" *ngIf="activeFilterCount">
                 <div class="field">
-                    <p class="control" grtBalloonPosition="down"
-                       grtBalloon="Modify the XPath to include the specified filters.">
+                    <p class="control" tooltipPosition="bottom"
+                       pTooltip="Modify the XPath to include the specified filters.">
                         <a class="button has-badge-rounded" [attr.data-badge]="activeFilterCount" role="button"
                            (click)="addFiltersXPath.next()">
                             <span class="is-large">

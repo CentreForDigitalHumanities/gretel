@@ -1,5 +1,5 @@
 <div class="field is-grouped is-grouped-multiline">
-    <div class="control" *ngFor="let filter of filters" [grtBalloon]="filter.attributeXpath">
+    <div class="control" *ngFor="let filter of filters" [pTooltip]="filter.attributeXpath">
         <div class="tags has-addons">
             <span class="tag is-medium">
                 <grt-xpath-viewer [value]="filter.label" [paddingless]="true"></grt-xpath-viewer>

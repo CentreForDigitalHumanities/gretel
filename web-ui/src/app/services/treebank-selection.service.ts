@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { StateService } from './state.service';
-import { TreebankService } from './treebank.service';
+import { MISSING_COMPONENT_ID, TreebankService } from './treebank.service';
 import { GlobalState, StepType } from '../pages/multi-step-page/steps';
 import { Treebank, TreebankDetails, CorpusSelection, TreebankSelection } from '../treebank';
 import { Observable } from 'rxjs';
@@ -108,7 +108,7 @@ export class TreebankSelectionService {
         this.updateTreebankState(provider, corpus, ['components', 'componentGroups'],
             (treebank, state, details) => {
                 const group = details.componentGroups.find(g => g.key === groupKey);
-                const groupComponents = Object.values(group.components).filter(id => !details.components[id].disabled);
+                const groupComponents = Object.values(group.components).filter(id => id !== MISSING_COMPONENT_ID && !details.components[id].disabled);
                 selected = selected != null
                     ? selected
                     : !groupComponents.every(id => state.components[id]);
@@ -129,7 +129,7 @@ export class TreebankSelectionService {
         this.updateTreebankState(provider, corpus, ['components', 'componentGroups', 'variants'],
             (treebank, state, details) => {
                 const variantComponents = details.componentGroups.map(g => g.components[variant])
-                    .filter(id => !details.components[id].disabled);
+                    .filter(id => id !== MISSING_COMPONENT_ID && !details.components[id].disabled);
                 selected = selected != null
                     ? selected
                     : !variantComponents.every(id => state.components[id]);

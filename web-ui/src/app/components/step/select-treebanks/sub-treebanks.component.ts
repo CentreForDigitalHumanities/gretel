@@ -1,8 +1,8 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges, OnDestroy } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import { animations } from '../../../animations';
-import { TreebankSelectionService } from '../../../services/_index';
+import { MISSING_COMPONENT_ID, TreebankSelectionService } from '../../../services/_index';
 import { TreebankComponent, ComponentGroup, FuzzyNumber, Treebank, TreebankComponents, TreebankSelection } from '../../../treebank';
 
 interface VariantSelection {
@@ -128,6 +128,22 @@ export class SubTreebanksComponent implements OnChanges, OnDestroy {
                 return dict;
             },
             {} as ComponentSelection);
+
+        if (this.componentGroups?.length > 1 && variants?.length > 1) {
+            // maybe a component is missing?
+            this.components[MISSING_COMPONENT_ID] = {
+                description: '',
+                id: MISSING_COMPONENT_ID,
+                selected: false,
+                sentenceCount: '?',
+                title: '',
+                wordCount: '?',
+                disabled: true
+            }
+        }
+        else {
+            delete this.components[MISSING_COMPONENT_ID];
+        }
 
         this.variants = variants && variants.map(variant => ({
             name: variant,

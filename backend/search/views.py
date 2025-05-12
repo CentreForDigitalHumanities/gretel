@@ -27,6 +27,7 @@ from .tasks import run_search_query
 from .types import Result, ResultSet
 from services.basex import basex
 
+from mwe_query import analyze_mwe_hit
 from mwe_query.canonicalform import expandfull
 
 import logging
@@ -110,15 +111,16 @@ def _get_or_create_components(component_slugs, treebank):
     return Component.objects.filter(slug__in=component_slugs, treebank__slug=treebank)
 
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def format_multi_mwe_attr(items: List[T], selector: Callable[[T], str]) -> str:
     values = set(selector(item) for item in items)
-    return ';'.join(sorted(values))
+    return ";".join(sorted(values))
+
 
 def parent(node: etree._Element) -> Optional[etree._Element]:
-    nodes = node.xpath('parent::node')
+    nodes = node.xpath("parent::node")
     if nodes == []:
         result = None
     else:
@@ -154,7 +156,9 @@ def common_node_parent(node1: etree._Element, node2: etree._Element) -> etree._E
         if node1parent is None:
             break
 
-    raise ValueError("No common parent found, this should not be possible if they are in the same tree!")
+    raise ValueError(
+        "No common parent found, this should not be possible if they are in the same tree!"
+    )
 
 
 def common_node_parent_multiple(nodes: List[etree._Element]) -> etree._Element:
@@ -172,40 +176,91 @@ def common_node_parent_multiple(nodes: List[etree._Element]) -> etree._Element:
 
 
 def add_mwe_attributes(queries: List[str], result: Result):
-    xpath_predicates = ' or '.join(f'@begin={begin}' for begin in result.begins)
-    xpath = f'//node[{xpath_predicates}]'
+    xpath_predicates = " or ".join(f"@begin={begin}" for begin in result.begins)
+    xpath = f"//node[{xpath_predicates}]"
     tree = cast(etree._ElementTree, result.tree)
     nodes = cast(List[etree._Element], tree.xpath(xpath))
     if nodes:
         hit = common_node_parent_multiple(nodes)
         hit_info = analyze_mwe_hit(hit, queries, result.tree)
-        result.attributes.update({
-            'mwe_arguments_heads_fringe': format_multi_mwe_attr(hit_info.arguments.heads, lambda head: head.fringe),
-            'mwe_arguments_heads_hdword': format_multi_mwe_attr(hit_info.arguments.heads, lambda head: head.hdword),
-            'mwe_arguments_heads_hdlemma': format_multi_mwe_attr(hit_info.arguments.heads, lambda head: head.hdlemma),
-            'mwe_arguments_heads_rel': format_multi_mwe_attr(hit_info.arguments.heads, lambda head: head.rel),
-            'mwe_arguments_frame': hit_info.arguments.frame.frame_str,
-            'mwe_arguments_rel_cats_fringe': format_multi_mwe_attr(hit_info.arguments.rel_cats, lambda rel_cat: rel_cat.fringe),
-            'mwe_arguments_rel_cats_poscat': format_multi_mwe_attr(hit_info.arguments.rel_cats, lambda rel_cat: rel_cat.poscat),
-            'mwe_arguments_rel_cats_rel': format_multi_mwe_attr(hit_info.arguments.rel_cats, lambda rel_cat: rel_cat.rel),
-            'mwe_components_lemma_parts': hit_info.components.lemma_parts,
-            'mwe_components_word_parts': hit_info.components.word_parts,
-            'mwe_components_marked_utt': hit_info.components.marked_utt,
-            'mwe_determinations_comp_lemma': format_multi_mwe_attr(hit_info.determinations, lambda determination: determination.comp_lemma),
-            'mwe_determinations_fringe': format_multi_mwe_attr(hit_info.determinations, lambda determination: determination.fringe),
-            'mwe_determinations_head_lemma': format_multi_mwe_attr(hit_info.determinations, lambda determination: determination.head_lemma),
-            'mwe_determinations_head_pos_cat': format_multi_mwe_attr(hit_info.determinations, lambda determination: determination.head_pos_cat),
-            'mwe_determinations_head_word': format_multi_mwe_attr(hit_info.determinations, lambda determination: determination.head_word),
-            'mwe_determinations_node_cat': format_multi_mwe_attr(hit_info.determinations, lambda determination: determination.node_cat),
-            'mwe_determinations_node_rel': format_multi_mwe_attr(hit_info.determinations, lambda determination: determination.node_rel),
-            'mwe_modifications_comp_lemma': format_multi_mwe_attr(hit_info.modifications, lambda modification: modification.comp_lemma),
-            'mwe_modifications_fringe': format_multi_mwe_attr(hit_info.modifications, lambda modification: modification.fringe),
-            'mwe_modifications_head_lemma': format_multi_mwe_attr(hit_info.modifications, lambda modification: modification.head_lemma),
-            'mwe_modifications_head_pos_cat': format_multi_mwe_attr(hit_info.modifications, lambda modification: modification.head_pos_cat),
-            'mwe_modifications_head_word': format_multi_mwe_attr(hit_info.modifications, lambda modification: modification.head_word),
-            'mwe_modifications_node_cat': format_multi_mwe_attr(hit_info.modifications, lambda modification: modification.node_cat),
-            'mwe_modifications_node_rel': format_multi_mwe_attr(hit_info.modifications, lambda modification: modification.node_rel),
-        })
+        result.attributes.update(
+            {
+                "mwe_arguments_heads_fringe": format_multi_mwe_attr(
+                    hit_info.arguments.heads, lambda head: head.fringe
+                ),
+                "mwe_arguments_heads_hdword": format_multi_mwe_attr(
+                    hit_info.arguments.heads, lambda head: head.hdword
+                ),
+                "mwe_arguments_heads_hdlemma": format_multi_mwe_attr(
+                    hit_info.arguments.heads, lambda head: head.hdlemma
+                ),
+                "mwe_arguments_heads_rel": format_multi_mwe_attr(
+                    hit_info.arguments.heads, lambda head: head.rel
+                ),
+                "mwe_arguments_frame": hit_info.arguments.frame.frame_str,
+                "mwe_arguments_rel_cats_fringe": format_multi_mwe_attr(
+                    hit_info.arguments.rel_cats, lambda rel_cat: rel_cat.fringe
+                ),
+                "mwe_arguments_rel_cats_poscat": format_multi_mwe_attr(
+                    hit_info.arguments.rel_cats, lambda rel_cat: rel_cat.poscat
+                ),
+                "mwe_arguments_rel_cats_rel": format_multi_mwe_attr(
+                    hit_info.arguments.rel_cats, lambda rel_cat: rel_cat.rel
+                ),
+                "mwe_components_lemma_parts": hit_info.components.lemma_parts,
+                "mwe_components_word_parts": hit_info.components.word_parts,
+                "mwe_components_marked_utt": hit_info.components.marked_utt,
+                "mwe_determinations_comp_lemma": format_multi_mwe_attr(
+                    hit_info.determinations,
+                    lambda determination: determination.comp_lemma,
+                ),
+                "mwe_determinations_fringe": format_multi_mwe_attr(
+                    hit_info.determinations, lambda determination: determination.fringe
+                ),
+                "mwe_determinations_head_lemma": format_multi_mwe_attr(
+                    hit_info.determinations,
+                    lambda determination: determination.head_lemma,
+                ),
+                "mwe_determinations_head_pos_cat": format_multi_mwe_attr(
+                    hit_info.determinations,
+                    lambda determination: determination.head_pos_cat,
+                ),
+                "mwe_determinations_head_word": format_multi_mwe_attr(
+                    hit_info.determinations,
+                    lambda determination: determination.head_word,
+                ),
+                "mwe_determinations_node_cat": format_multi_mwe_attr(
+                    hit_info.determinations,
+                    lambda determination: determination.node_cat,
+                ),
+                "mwe_determinations_node_rel": format_multi_mwe_attr(
+                    hit_info.determinations,
+                    lambda determination: determination.node_rel,
+                ),
+                "mwe_modifications_comp_lemma": format_multi_mwe_attr(
+                    hit_info.modifications, lambda modification: modification.comp_lemma
+                ),
+                "mwe_modifications_fringe": format_multi_mwe_attr(
+                    hit_info.modifications, lambda modification: modification.fringe
+                ),
+                "mwe_modifications_head_lemma": format_multi_mwe_attr(
+                    hit_info.modifications, lambda modification: modification.head_lemma
+                ),
+                "mwe_modifications_head_pos_cat": format_multi_mwe_attr(
+                    hit_info.modifications,
+                    lambda modification: modification.head_pos_cat,
+                ),
+                "mwe_modifications_head_word": format_multi_mwe_attr(
+                    hit_info.modifications, lambda modification: modification.head_word
+                ),
+                "mwe_modifications_node_cat": format_multi_mwe_attr(
+                    hit_info.modifications, lambda modification: modification.node_cat
+                ),
+                "mwe_modifications_node_rel": format_multi_mwe_attr(
+                    hit_info.modifications, lambda modification: modification.node_rel
+                ),
+            }
+        )
 
 
 def mwe_include(queries: List[str]) -> Callable[[ResultSet], ResultSet]:
@@ -273,6 +328,8 @@ def search_view(request):  # noqa: C901
     use_superset = behaviour.get("supersetXpath") is not None
 
     should_expand_index = behaviour.get("expandIndex", False)
+    mwe_queries: List[str] = behaviour.get("mweQueries", [])
+
     if use_superset:
         subset_xpath = xpath
         xpath = behaviour["supersetXpath"]

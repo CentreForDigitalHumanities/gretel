@@ -47,7 +47,6 @@ import { NavigationComponent } from './components/page-components/header/navigat
 import { HeaderComponent } from './components/page-components/header/header.component';
 import { Header3Component } from './components/page-components/header-3/header-3.component';
 import { GretelWebsiteLinkComponent } from './components/page-components/gretel-website-link/gretel-website-link.component';
-import { BalloonDirective } from './balloon.directive';
 import { SubtitleDirective } from './subtitle.directive';
 
 import {
@@ -91,7 +90,6 @@ export const declarations: any[] = [
     AddressComponent,
     AnalysisComponent,
     AppComponent,
-    BalloonDirective,
     BodyHeaderComponent,
     BreadcrumbBarComponent,
     DistributionListComponent,

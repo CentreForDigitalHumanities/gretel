@@ -12,34 +12,32 @@ import shutil
 from treebanks.models import Treebank
 from services.basex import basex
 
-from .basex_search import (check_db_name, check_xpath, generate_xquery_search,
-                           generate_xquery_count, parse_search_result,
-                           generate_xquery_for_variables,
-                           check_xquery_variable_name,
-                           parse_metadata_count_result,
-                           generate_xquery_showtree)
+from .basex_search import (
+    check_db_name,
+    check_xpath,
+    generate_xquery_search,
+    generate_xquery_count,
+    parse_search_result,
+    generate_xquery_for_variables,
+    check_xquery_variable_name,
+    parse_metadata_count_result,
+    generate_xquery_showtree,
+)
 from .models import ComponentSearchResult, SearchQuery
 
 test_treebank = None
 
 # ‘Dit is een voorbeeldzin.’
-XPATH1 = '//node[@cat="smain" and node[@rel="su" and @pt="vnw"] and' \
-         ' node[@rel="hd" and @pt="ww"] and node[@rel="predc" and' \
-         ' @cat="np" and node[@rel="det" and @pt="lid"] and' \
-         ' node[@rel="hd" and @pt="n"]]]'
+XPATH1 = (
+    '//node[@cat="smain" and node[@rel="su" and @pt="vnw"] and'
+    ' node[@rel="hd" and @pt="ww"] and node[@rel="predc" and'
+    ' @cat="np" and node[@rel="det" and @pt="lid"] and'
+    ' node[@rel="hd" and @pt="n"]]]'
+)
 VAR_CHECK = [
-    {
-        'name': '$node',
-        'path': '*'
-    },
-    {
-        'name': '$node1',
-        'path': '$node/node[@rel = "su" and @pt = "vnw"]'
-    },
-    {
-        'name': '$node2',
-        'path': '$node/node[@rel = "hd" and @pt = "ww"]'
-    }
+    {"name": "$node", "path": "*"},
+    {"name": "$node1", "path": '$node/node[@rel = "su" and @pt = "vnw"]'},
+    {"name": "$node2", "path": '$node/node[@rel = "hd" and @pt = "ww"]'},
 ]
 
 
@@ -48,14 +46,14 @@ def setUpModule():
         # We cannot work with a real treebank, but let other tests continue
         print("NO CONNECTION: Skipping Basex tests")
         return
-    print('Uploading a test treebank to BaseX (will be deleted afterwards)...')
+    print("Uploading a test treebank to BaseX (will be deleted afterwards)...")
     call_command(
-        'upload-lassy',
-        str(settings.BASE_DIR / 'testdata' / 'TEST_TROONREDE'),
-        '--group-by=11'  # Create two components each consisting of two DBs
+        "upload-lassy",
+        str(settings.BASE_DIR / "testdata" / "TEST_TROONREDE"),
+        "--group-by=11",  # Create two components each consisting of two DBs
     )
     global test_treebank
-    test_treebank = Treebank.objects.get(slug='test_troonrede')
+    test_treebank = Treebank.objects.get(slug="test_troonrede")
     global test_cache_dir, test_cache_path
     test_cache_dir = tempfile.TemporaryDirectory()
     test_cache_path = pathlib.Path(test_cache_dir.name)
@@ -68,8 +66,8 @@ def tearDownModule():
 
 
 class BaseXSearchTestCase(TestCase):
-    DB_NAME_CHECK = 'EUROPARL_ID_EP-00_0000'
-    SENT_ID_CHECK = 'troonrede1990.data.dz:63'
+    DB_NAME_CHECK = "EUROPARL_ID_EP-00_0000"
+    SENT_ID_CHECK = "troonrede1990.data.dz:63"
 
     def test_check_db_name(self):
         self.assertTrue(check_db_name(self.DB_NAME_CHECK))
@@ -77,12 +75,12 @@ class BaseXSearchTestCase(TestCase):
 
     def test_check_xpath(self):
         self.assertTrue(check_xpath(XPATH1))
-        self.assertFalse(check_xpath(XPATH1 + ' let $a := 0'))
+        self.assertFalse(check_xpath(XPATH1 + " let $a := 0"))
 
     def test_check_xquery_variable_name(self):
-        self.assertTrue(check_xquery_variable_name('$node1'))
-        self.assertFalse(check_xquery_variable_name('node1'))
-        self.assertFalse(check_xquery_variable_name('$node1 let $a := 0'))
+        self.assertTrue(check_xquery_variable_name("$node1"))
+        self.assertFalse(check_xquery_variable_name("node1"))
+        self.assertFalse(check_xquery_variable_name("$node1 let $a := 0"))
 
     def test_xquery_search_count(self):
         # Check if function runs without error
@@ -90,33 +88,23 @@ class BaseXSearchTestCase(TestCase):
         generate_xquery_count(self.DB_NAME_CHECK, XPATH1)
         # Illegal arguments should raise error
         for func in (generate_xquery_search, generate_xquery_count):
+            self.assertRaises(ValueError, func, self.DB_NAME_CHECK + " ", XPATH1)
             self.assertRaises(
-                ValueError,
-                func,
-                self.DB_NAME_CHECK + ' ',
-                XPATH1
-            )
-            self.assertRaises(
-                ValueError,
-                func,
-                self.DB_NAME_CHECK,
-                XPATH1 + ' let $a := 0'
+                ValueError, func, self.DB_NAME_CHECK, XPATH1 + " let $a := 0"
             )
 
     def test_xquery_for_variables(self):
         # TODO: test with custom properties
         # Should work well with VAR_CHECK
-        let_fragment, return_fragment = \
-            generate_xquery_for_variables(VAR_CHECK)
+        let_fragment, return_fragment = generate_xquery_for_variables(VAR_CHECK)
         # There should be two declared variables
-        self.assertEqual(let_fragment.count('let $'), 2)
+        self.assertEqual(let_fragment.count("let $"), 2)
         # Return fragment should be valid XML
         etree.fromstring(return_fragment)
         # Empty variables lists result in empty strings
-        let_fragment, return_fragment = \
-            generate_xquery_for_variables([])
-        self.assertEqual(let_fragment, '')
-        self.assertEqual(return_fragment, '')
+        let_fragment, return_fragment = generate_xquery_for_variables([])
+        self.assertEqual(let_fragment, "")
+        self.assertEqual(return_fragment, "")
 
     def test_xquery_showtree(self):
         # Check if function runs without error
@@ -124,34 +112,39 @@ class BaseXSearchTestCase(TestCase):
         # TODO: check for valid XQuery
         # Illegal arguments should raise error
         self.assertRaises(
-            ValueError, generate_xquery_showtree,
-            self.DB_NAME_CHECK + ' ', self.SENT_ID_CHECK
+            ValueError,
+            generate_xquery_showtree,
+            self.DB_NAME_CHECK + " ",
+            self.SENT_ID_CHECK,
         )
         self.assertRaises(
-            ValueError, generate_xquery_showtree,
-            self.DB_NAME_CHECK, self.SENT_ID_CHECK + '"'
+            ValueError,
+            generate_xquery_showtree,
+            self.DB_NAME_CHECK,
+            self.SENT_ID_CHECK + '"',
         )
 
     def test_parse_search_result(self):
-        input_str = '<match>id||sentence||ids||begins||' \
-            'xml_sentences||meta||vars||db</match><match>id2||sentence2' \
-            '||ids2||begins2' \
-            '||xml_sentences2||meta2||vars||db</match>'
-        res = [r.as_dict() for r in parse_search_result(input_str, 'component')]
-        self.assertEqual('sentence', res[0]['sentence'])
-        self.assertEqual('meta2', res[1]['meta'])
+        input_str = (
+            "<match>id||sentence||ids||begins||"
+            "xml_sentences||meta||vars||db</match><match>id2||sentence2"
+            "||ids2||begins2"
+            "||xml_sentences2||meta2||vars||db</match>"
+        )
+        res = [r.as_dict() for r in parse_search_result(input_str, "component")]
+        self.assertEqual("sentence", res[0]["sentence"])
+        self.assertEqual("meta2", res[1]["meta"])
         # Incomplete input string should raise exception
-        input_str = '<match>id||sentence||ids||begins||xml_sentences' \
-            '||meta||</match><match>id2||sentence2||id'
-        self.assertRaises(ValueError, parse_search_result, input_str,
-                          'component')
-        input_str = '<match>id||sentence||ids||begins||xml_sentences' \
-            '</match>'
-        self.assertRaises(ValueError, parse_search_result, input_str,
-                          'component')
+        input_str = (
+            "<match>id||sentence||ids||begins||xml_sentences"
+            "||meta||</match><match>id2||sentence2||id"
+        )
+        self.assertRaises(ValueError, parse_search_result, input_str, "component")
+        input_str = "<match>id||sentence||ids||begins||xml_sentences" "</match>"
+        self.assertRaises(ValueError, parse_search_result, input_str, "component")
         # Empty string should return an empty list
-        self.assertEqual([], parse_search_result('', 'component'))
-        self.assertEqual([], parse_search_result('\n ', 'component'))
+        self.assertEqual([], parse_search_result("", "component"))
+        self.assertEqual([], parse_search_result("\n ", "component"))
 
     def test_parse_metadata_count_result(self):
         TEST_XML = """
@@ -170,42 +163,35 @@ class BaseXSearchTestCase(TestCase):
 </metadata>
 """
         EXPECTED_RESULT = {
-            'uttstartlineno': {'33': 1, '216': 1},
-            'charencoding': {'UTF8': 411, 'UTF16': 50}
+            "uttstartlineno": {"33": 1, "216": 1},
+            "charencoding": {"UTF8": 411, "UTF16": 50},
         }
-        totals = parse_metadata_count_result(
-            TEST_XML
-        )
+        totals = parse_metadata_count_result(TEST_XML)
         self.assertEqual(totals, EXPECTED_RESULT)
         # Empty list should give empty dict
-        self.assertEqual(
-            parse_metadata_count_result('<metadata></metadata>'),
-            {}
-        )
+        self.assertEqual(parse_metadata_count_result("<metadata></metadata>"), {})
         # Invalid format should raise error
         with self.assertRaises(ValueError):
-            parse_metadata_count_result('<something></something>')
+            parse_metadata_count_result("<something></something>")
 
 
 class ComponentSearchResultTestCase(TestCase):
     def test_perform_search(self):
         if not basex.test_connection():
-            return self.skipTest('requires running BaseX server')
+            return self.skipTest("requires running BaseX server")
         if not test_treebank:
-            return self.skipTest('requires an uploaded test treebank')
+            return self.skipTest("requires an uploaded test treebank")
         with self.settings(CACHING_DIR=test_cache_path):
-            component = test_treebank.components.get(slug='troonrede19')
+            component = test_treebank.components.get(slug="troonrede19")
             csr = ComponentSearchResult(
-                xpath=XPATH1,
-                component=component,
-                variables=VAR_CHECK
+                xpath=XPATH1, component=component, variables=VAR_CHECK
             )
             csr.perform_search()
             # Compare results with what we know from GrETEL 4
             self.assertEqual(csr.number_of_results, 4)
             self.assertLessEqual(csr.search_completed, timezone.now())
             # There should be no errors and error string should be empty
-            self.assertEqual(csr.errors, '')
+            self.assertEqual(csr.errors, "")
             # Actual number of results should be correct
             self.assertEqual(len(csr.get_results()), csr.number_of_results)
             csr.delete()  # Delete because CSR auto-saves
@@ -214,9 +200,9 @@ class ComponentSearchResultTestCase(TestCase):
 class SearchQueryTestCase(TestCase):
     def setUp(self):
         if not basex.test_connection():
-            return self.skipTest('requires running BaseX server')
+            return self.skipTest("requires running BaseX server")
         if not test_treebank:
-            return self.skipTest('requires an uploaded test treebank')
+            return self.skipTest("requires an uploaded test treebank")
 
     def test_initialize(self):
         # Create a SQ and test if it gets the right number of CSRs
@@ -310,9 +296,8 @@ class SearchQueryTestCase(TestCase):
         components = test_treebank.components.all()
         sq.components.add(*components)
         counts = sq.perform_count()
-        self.assertEqual(counts['troonrede19'], 4)
-        self.assertEqual(counts['troonrede20'], 3)
-
+        self.assertEqual(counts["troonrede19"], 4)
+        self.assertEqual(counts["troonrede20"], 3)
 
     def test_missing_cache(self):
         with self.settings(CACHING_DIR=test_cache_path):
@@ -344,7 +329,7 @@ class SearchQueryTestCase(TestCase):
         with self.settings(CACHING_DIR=test_cache_path):
             # Make sure there are no results left from other tests
             ComponentSearchResult.objects.all().delete()
-            for f in test_cache_path.glob('*'):
+            for f in test_cache_path.glob("*"):
                 os.unlink(f)
 
             # SQ with full treebank

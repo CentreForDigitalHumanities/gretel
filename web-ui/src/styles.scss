@@ -7,13 +7,6 @@ $scrollbar-width: 0.75em;
 @import "bulma/bulma";
 @import "bulma-badge/src/sass/index";
 @import "bulma-pageloader/dist/css/bulma-pageloader";
-@import "balloon-css/src/balloon";
-
-[aria-label][data-balloon-pos]:after {
-    z-index: 500;
-    // make sure balloons can be shown in multiple lines
-    white-space: normal !important;
-}
 
 @import "material";
 @import "@ng-select/ng-select/themes/default.theme.css";

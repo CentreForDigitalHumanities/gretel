@@ -4,18 +4,21 @@ from typing import List, TypedDict
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView
-from rest_framework.viewsets import ModelViewSet
 
 from mwe_query.canonicalform import generatequeries
 
-from .models import CanonicalForm, XPathQuery
-from .serializers import CanonicalFormSerializer, XPathQuerySerializer, MweQuerySerializer
+from .models import CanonicalForm
+from .serializers import (
+    CanonicalFormSerializer,
+    XPathQuerySerializer,
+    MweQuerySerializer,
+)
 
 log = logging.getLogger(__name__)
 
 
 class CanonicalFormList(ListAPIView):
-    queryset = CanonicalForm.objects.all().order_by('dcmid')
+    queryset = CanonicalForm.objects.all().order_by("dcmid")
     serializer_class = CanonicalFormSerializer
 
 
@@ -26,7 +29,7 @@ class MWEQuery(TypedDict):
 
 
 def generate_queries(sentence: str) -> List[MWEQuery]:
-    """ Generates a set of queries using the mwe-query package.
+    """Generates a set of queries using the mwe-query package.
     (https://github.com/UUDigitalHumanitieslab/mwe-query)
 
     This happens on the basis of an alpino parse tree and results in three
@@ -45,18 +48,18 @@ def generate_queries(sentence: str) -> List[MWEQuery]:
     generated = generatequeries(sentence)
     assert len(generated) == 3
     return [
-        MWEQuery(xpath=generated[0], description='Multi-word expression query', rank=1),
-        MWEQuery(xpath=generated[1], description='Near-miss query', rank=2),
-        MWEQuery(xpath=generated[2], description='Major lemma query', rank=3),
+        MWEQuery(xpath=generated[0], description="Multi-word expression query", rank=1),
+        MWEQuery(xpath=generated[1], description="Near-miss query", rank=2),
+        MWEQuery(xpath=generated[2], description="Major lemma query", rank=3),
     ]
 
 
 class GenerateMweQueries(APIView):
     def post(self, request, format=None):
-        """ Generate XPath queries for a given canonical form of a MWE.
+        """Generate XPath queries for a given canonical form of a MWE.
         If the MWE is a known form, it may have manually adjusted stored queries.
-        Otherwise, queries are generated on-the-fly """
-        text = request.data['canonical'].lower()
+        Otherwise, queries are generated on-the-fly"""
+        text = request.data["canonical"].lower()
         canonical = CanonicalForm.objects.filter(text=text).first()
 
         queries = dict()
@@ -66,8 +69,8 @@ class GenerateMweQueries(APIView):
             for i in range(len(generated)):
                 queries[i] = MweQuerySerializer(generated[i]).data
         except Exception:
-            log.exception('Could not generate MWE queries')
-            return Response('Could not generate MWE queries', status=500)
+            log.exception("Could not generate MWE queries")
+            return Response("Could not generate MWE queries", status=500)
 
         if canonical:
             # look for saved queries, replace generated with saved ones

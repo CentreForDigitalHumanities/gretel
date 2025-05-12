@@ -3,8 +3,6 @@ from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 
 from upload.models import TreebankUpload, UploadError
-from treebanks.models import Treebank, Component, BaseXDB
-from services.basex import basex
 
 
 class Command(BaseCommand):

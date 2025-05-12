@@ -6,26 +6,29 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('search', '0002_componentsearchresult_errors_and_more'),
+        ("search", "0002_componentsearchresult_errors_and_more"),
     ]
 
     operations = [
         migrations.RemoveConstraint(
-            model_name='componentsearchresult',
-            name='componentsearchresult_uniqueness',
+            model_name="componentsearchresult",
+            name="componentsearchresult_uniqueness",
         ),
         migrations.AddField(
-            model_name='componentsearchresult',
-            name='variables',
+            model_name="componentsearchresult",
+            name="variables",
             field=models.JSONField(blank=True, default=list),
         ),
         migrations.AddField(
-            model_name='searchquery',
-            name='variables',
+            model_name="searchquery",
+            name="variables",
             field=models.JSONField(blank=True, default=list),
         ),
         migrations.AddConstraint(
-            model_name='componentsearchresult',
-            constraint=models.UniqueConstraint(fields=('xpath', 'component', 'variables'), name='componentsearchresult_uniqueness'),
+            model_name="componentsearchresult",
+            constraint=models.UniqueConstraint(
+                fields=("xpath", "component", "variables"),
+                name="componentsearchresult_uniqueness",
+            ),
         ),
     ]

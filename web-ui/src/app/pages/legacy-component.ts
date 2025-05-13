@@ -23,10 +23,7 @@ export class LegacyComponent {
             ...activatedRoute.snapshot.queryParams
         };
 
-        if (queryParams['selectedTreebanks']) {
-            const selectedTreebanks = JSON.parse(queryParams.selectedTreebanks);
-            queryParams['selectedTreebanks'] = JSON.stringify(this.rewriteComponentNames(selectedTreebanks));
-        }
+        LegacyComponent.rewriteParams(queryParams);
 
         if (segments.length >= 1 && segments[0].path === 'ng') {
             router.navigate(segments.slice(1).map(segment => segment.path), {
@@ -35,20 +32,34 @@ export class LegacyComponent {
         }
     }
 
-    private rewriteComponentNames(selection: TreebankSelectionMap) {
+    /**
+     * Rewrites the parameters in-place
+     * @param queryParams parameters to rewrite
+     */
+    public static rewriteParams(queryParams: { [x: string]: any }): void {
+        if (queryParams['selectedTreebanks']) {
+            const selectedTreebanks = JSON.parse(queryParams.selectedTreebanks);
+            queryParams['selectedTreebanks'] = JSON.stringify(LegacyComponent.rewriteComponentNames(selectedTreebanks));
+        }
+    }
+
+    private static rewriteComponentNames(selection: TreebankSelectionMap) {
         const rules: {
             [path: string]: {
                 corpusName: (name: string) => string,
                 componentName: (name: string) => string
             }
         } = {
+            // matching provider and the corpus name
+            // the first matching rule is applied
+            // any remaining rules are ignored
             'gretel/cgn': {
                 corpusName: () => 'cgn',
                 componentName: (name) => name.replace('CGN_ID_', 'cgn-').toLowerCase()
             },
             'gretel/lassy': {
                 corpusName: () => 'lassy-klein',
-                componentName: (name) => name.replace('LASSY_ID_', 'cgn-').toLowerCase()
+                componentName: (name) => name.replace('LASSY_ID_', '').toLowerCase()
             },
             'gretel/*': {
                 corpusName: (name) => 'GRETEL-UPLOAD-' + name,
@@ -57,12 +68,18 @@ export class LegacyComponent {
         };
 
         const output: TreebankSelectionMap = {};
+        const rewrittenCorpora = new Set<string>();
 
         for (const [path, { corpusName, componentName }] of Object.entries(rules)) {
             const [matchProvider, matchCorpus] = path.split('/');
             const corpora = selection[matchProvider];
             if (corpora) {
                 for (const [corpus, components] of Object.entries(corpora)) {
+                    if (rewrittenCorpora.has(corpus)) {
+                        // only rewrite a corpus once
+                        continue;
+                    }
+
                     if (corpus === matchCorpus ||
                         (matchCorpus === '*' &&
                             (!output[matchProvider] ||
@@ -71,7 +88,9 @@ export class LegacyComponent {
                         if (!output[matchProvider]) {
                             output[matchProvider] = {}
                         }
-                        output[matchProvider][corpusName(corpus)] = components.map(componentName);
+                        // (sort is only needed to make this predictable for tests)
+                        output[matchProvider][corpusName(corpus)] = components.map(componentName).sort();
+                        rewrittenCorpora.add(corpus);
                     }
                 }
             }

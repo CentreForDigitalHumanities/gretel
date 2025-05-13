@@ -136,7 +136,7 @@ export class SubTreebanksComponent implements OnChanges, OnDestroy {
                 id: MISSING_COMPONENT_ID,
                 selected: false,
                 sentenceCount: '?',
-                title: '',
+                title: '—',
                 wordCount: '?',
                 disabled: true
             }

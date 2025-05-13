@@ -3,8 +3,6 @@
 [![Actions Status](https://github.com/UUDigitalHumanitieslab/gretel-django/workflows/Tests/badge.svg)](https://github.com/UUDigitalHumanitieslab/gretel-django/actions)
 [![DOI](https://zenodo.org/badge/95562504.svg)](https://zenodo.org/badge/latestdoi/95562504)
 
-This is currently under active development. The stable predecessor can be found at <http://gretel.hum.uu.nl> (and the source at <https://github.com/UUDigitalHumanitieslab/gretel>).
-
 ## Before you start
 
 You need to install the following software:

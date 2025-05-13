@@ -262,7 +262,7 @@ When searching for a more specific structure, this is unlikely to occur.
 - [Ben Bonfil](https://www.uu.nl/staff/BBonfil) and [Tijmen Baarda](https://www.uu.nl/staff/TCBaarda): additional GrETEL 5 functionality and improvements;
 - [Jan Odijk](https://www.clariah.nl/nl/personen/jan-odijk) project lead for GrETEL 4 and GrETEL 5 developments;
 - [Koen Mertens](https://github.com/KCMertens): federated search at [Instituut voor de Nederlandse taal](https://ivdnt.org).
-- Colleagues at the [Centre for Computational Linguistics at KU Leuven](http://www.arts.kuleuven.be/ling/ccl), and [Utrecht University Digital Humanities Lab](https://dig.hum.uu.nl) for their feedback.
+- Colleagues at the [Centre for Computational Linguistics at KU Leuven](http://www.arts.kuleuven.be/ling/ccl), and [Centre for Digital Humanities at Utrecht University](https://cdh.uu.nl/about/research-software-lab/) for their feedback.
 
 ## License
 

@@ -11,6 +11,7 @@ import { XpathSearchComponent } from '../pages/xpath-search/xpath-search.compone
 import { MultiWordExpressionsComponent } from '../pages/multi-word-expressions/multi-word-expressions.component';
 import { ExampleBasedSearchComponent } from '../pages/example-based-search/example-based-search.component';
 import { ExternalTreeVisualizerComponent } from '../components/tree-visualizer/external-tree-visualizer.component';
+import { LegacyComponent } from '../pages/legacy-component';
 
 
 const routes: Routes = [
@@ -46,6 +47,10 @@ const routes: Routes = [
         path: '',
         redirectTo: '/home',
         pathMatch: 'full'
+    },
+    {
+        path: '**',
+        component: LegacyComponent
     }
 ];
 

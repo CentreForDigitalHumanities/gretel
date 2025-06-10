@@ -69,6 +69,7 @@ export class MweResultsComponent extends ResultsComponent {
 
     private behaviour$: BehaviorSubject<SearchBehaviour> = new BehaviorSubject({
         supersetXpath: null,
+        mweQueries: null,
         expandIndex: true,
     });
 
@@ -83,14 +84,15 @@ export class MweResultsComponent extends ResultsComponent {
 
     private emitBehaviour() {
         this.behaviour$.next({
-            supersetXpath: this.currentQuery.rank != this.supersetQuery.rank ? this.supersetQuery?.xpath : null,
+            supersetXpath: this.currentQuery && this.currentQuery.rank != this.supersetQuery?.rank ? this.supersetQuery?.xpath : null,
             expandIndex: true,
-            exclusions: this.querySet.filter(query => this.excludeQuery[query.rank]).map(query => query.xpath),
+            mweQueries: null,
+            exclusions: this.querySet?.filter(query => this.excludeQuery[query.rank]).map(query => query.xpath),
         });
     }
 
     isQueryAdjusted() {
-        return this.currentQuery.id ?? false;
+        return this.currentQuery?.id ?? false;
     }
 
     get supersetQuery() {

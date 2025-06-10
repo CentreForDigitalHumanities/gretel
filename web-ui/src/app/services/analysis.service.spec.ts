@@ -39,10 +39,12 @@ describe('Analysis Service', () => {
     </node>
     <node lemma="." pos="punct" />
   </node>`,
-                variableValues: { '$node1': { lemma: undefined, pos: undefined } }
+                variableValues: { '$node1': { lemma: undefined, pos: undefined } },
+                attributes: {}
             }],
             {'$node1': ['pos', 'lemma']},
-            ['meta1']);
+            ['meta1'],
+            []);
         expect(result).toEqual([
             ['meta1', '$node1.pos', '$node1.lemma'],
             ['hallo', '(none)', '(none)']
@@ -59,6 +61,7 @@ describe('Analysis Service', () => {
             ],
             {'$node1': ['pos', 'lemma']},
             ['meta1'],
+            []
         );
         expect(result).toEqual([
             ['meta1', '$node1.pos', '$node1.lemma'],
@@ -82,7 +85,8 @@ describe('Analysis Service', () => {
             nodeStarts: [] as number[],
             metaValues: { 'meta1': 'hallo' },
             treeXml: generateNodeXml(count),
-            variableValues: { '$node1': { lemma: 'test', pos: 'test' } }
+            variableValues: { '$node1': { lemma: 'test', pos: 'test' } },
+            attributes: {}
         };
     }
 

@@ -5,245 +5,278 @@
         {
             "slug": "cgn-na",
             "title": "NA",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_NA"],
+            "description": "Spontaneous conversations ('face-to-face')",
+            "databases": [
+                "CGN_ID_NA"
+            ],
             "variant": "NL",
             "group": "A"
         },
         {
             "slug": "cgn-va",
             "title": "VA",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_VA"],
+            "description": "Spontaneous conversations ('face-to-face')",
+            "databases": [
+                "CGN_ID_VA"
+            ],
             "variant": "VL",
             "group": "A"
         },
         {
             "slug": "cgn-nb",
             "title": "NB",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_NB"],
+            "description": "Interviews with teachers of Dutch",
+            "databases": [
+                "CGN_ID_NB"
+            ],
             "variant": "NL",
             "group": "B"
         },
         {
             "slug": "cgn-vb",
             "title": "VB",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_VB"],
+            "description": "Interviews with teachers of Dutch",
+            "databases": [
+                "CGN_ID_VB"
+            ],
             "variant": "VL",
             "group": "B"
         },
         {
             "slug": "cgn-nc",
             "title": "NC",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_NC"],
+            "description": "Telephone conversations (recorded via a switchboard)",
+            "databases": [
+                "CGN_ID_NC"
+            ],
             "variant": "NL",
             "group": "C"
         },
         {
             "slug": "cgn-vc",
             "title": "VC",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_VC"],
+            "description": "Telephone conversations (recorded via a switchboard)",
+            "databases": [
+                "CGN_ID_VC"
+            ],
             "variant": "VL",
             "group": "C"
         },
         {
-            "slug": "cgn-nd",
-            "title": "ND",
-            "description": "Dutch Parallel Corpus",
-            "databases": [],
-            "variant": "NL",
-            "group": "D"
-        },
-        {
             "slug": "cgn-vd",
             "title": "VD",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_VD"],
+            "description": "Telephone conversations (recorded on MD)",
+            "databases": [
+                "CGN_ID_VD"
+            ],
             "variant": "VL",
             "group": "D"
         },
         {
             "slug": "cgn-ne",
             "title": "NE",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_NE"],
+            "description": "Simulated business negotiations",
+            "databases": [
+                "CGN_ID_NE"
+            ],
             "variant": "NL",
-            "group": "E"
-        },
-        {
-            "slug": "cgn-ve",
-            "title": "VE",
-            "description": "Dutch Parallel Corpus",
-            "databases": [],
-            "variant": "VL",
             "group": "E"
         },
         {
             "slug": "cgn-nf",
             "title": "NF",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_NF"],
+            "description": "Interviews/discussions/debates (broadcast)",
+            "databases": [
+                "CGN_ID_NF"
+            ],
             "variant": "NL",
             "group": "F"
         },
         {
             "slug": "cgn-vf",
             "title": "VF",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_VF"],
+            "description": "Interviews/discussions/debates (broadcast)",
+            "databases": [
+                "CGN_ID_VF"
+            ],
             "variant": "VL",
             "group": "F"
         },
         {
             "slug": "cgn-ng",
             "title": "NG",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_NG"],
+            "description": "(Political) discussions/debates/meetings (non-broadcast)",
+            "databases": [
+                "CGN_ID_NG"
+            ],
             "variant": "NL",
             "group": "G"
         },
         {
             "slug": "cgn-vg",
             "title": "VG",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_VG"],
+            "description": "(Political) discussions/debates/meetings (non-broadcast)",
+            "databases": [
+                "CGN_ID_VG"
+            ],
             "variant": "VL",
             "group": "G"
         },
         {
             "slug": "cgn-nh",
             "title": "NH",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_NH"],
+            "description": "Lessons recorded in the classroom",
+            "databases": [
+                "CGN_ID_NH"
+            ],
             "variant": "NL",
             "group": "H"
         },
         {
             "slug": "cgn-vh",
             "title": "VH",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_VH"],
+            "description": "Lessons recorded in the classroom",
+            "databases": [
+                "CGN_ID_VH"
+            ],
             "variant": "VL",
             "group": "H"
         },
         {
             "slug": "cgn-ni",
             "title": "NI",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_NI"],
+            "description": "Live (sports) commentaries (broadcast)",
+            "databases": [
+                "CGN_ID_NI"
+            ],
             "variant": "NL",
             "group": "I"
         },
         {
             "slug": "cgn-vi",
             "title": "VI",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_VI"],
+            "description": "Live (sports) commentaries (broadcast)",
+            "databases": [
+                "CGN_ID_VI"
+            ],
             "variant": "VL",
             "group": "I"
         },
         {
             "slug": "cgn-nj",
             "title": "NJ",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_NJ"],
+            "description": "Newsreports (broadcast)",
+            "databases": [
+                "CGN_ID_NJ"
+            ],
             "variant": "NL",
             "group": "J"
         },
         {
             "slug": "cgn-vj",
             "title": "VJ",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_VJ"],
+            "description": "Newsreports (broadcast)",
+            "databases": [
+                "CGN_ID_VJ"
+            ],
             "variant": "VL",
             "group": "J"
         },
         {
             "slug": "cgn-nk",
             "title": "NK",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_NK"],
+            "description": "News (broadcast)",
+            "databases": [
+                "CGN_ID_NK"
+            ],
             "variant": "NL",
             "group": "K"
         },
         {
             "slug": "cgn-vk",
             "title": "VK",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_VK"],
+            "description": "News (broadcast)",
+            "databases": [
+                "CGN_ID_VK"
+            ],
             "variant": "VL",
             "group": "K"
         },
         {
             "slug": "cgn-nl",
             "title": "NL",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_NL"],
+            "description": "Commentaries/columns/reviews (broadcast)",
+            "databases": [
+                "CGN_ID_NL"
+            ],
             "variant": "NL",
             "group": "L"
         },
         {
             "slug": "cgn-vl",
             "title": "VL",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_VL"],
+            "description": "Commentaries/columns/reviews (broadcast)",
+            "databases": [
+                "CGN_ID_VL"
+            ],
             "variant": "VL",
             "group": "L"
         },
         {
             "slug": "cgn-nm",
             "title": "NM",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_NM"],
+            "description": "Ceremonious speeches/sermons",
+            "databases": [
+                "CGN_ID_NM"
+            ],
             "variant": "NL",
             "group": "M"
         },
         {
             "slug": "cgn-vm",
             "title": "VM",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_VM"],
+            "description": "Ceremonious speeches/sermons",
+            "databases": [
+                "CGN_ID_VM"
+            ],
             "variant": "VL",
             "group": "M"
         },
         {
             "slug": "cgn-nn",
             "title": "NN",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_NN"],
+            "description": "Lectures/seminars",
+            "databases": [
+                "CGN_ID_NN"
+            ],
             "variant": "NL",
             "group": "N"
         },
         {
             "slug": "cgn-vn",
             "title": "VN",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_VN"],
+            "description": "Lectures/seminars",
+            "databases": [
+                "CGN_ID_VN"
+            ],
             "variant": "VL",
             "group": "N"
         },
         {
-            "slug": "cgn-no",
-            "title": "NO",
-            "description": "Dutch Parallel Corpus",
-            "databases": [],
-            "variant": "NL",
-            "group": "O"
-        },
-        {
             "slug": "cgn-vo",
             "title": "VO",
-            "description": "Dutch Parallel Corpus",
-            "databases": ["CGN_ID_VO"],
+            "description": "Read speech",
+            "databases": [
+                "CGN_ID_VO"
+            ],
             "variant": "VL",
             "group": "O"
         }
     ],
-    "variants": ["NL", "VL"],
+    "variants": [
+        "NL",
+        "VL"
+    ],
     "groups": [
         {
             "slug": "A",

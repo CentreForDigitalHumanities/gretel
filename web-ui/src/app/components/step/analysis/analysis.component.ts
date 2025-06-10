@@ -22,7 +22,8 @@ import {
     FilterValue,
     StateService,
     ParseService,
-    NotificationService
+    NotificationService,
+    SearchBehaviour
 } from '../../../services/_index';
 import { FileExportRenderer } from './file-export-renderer';
 import { TreebankMetadata } from '../../../treebank';
@@ -30,6 +31,35 @@ import { StepDirective } from '../step.directive';
 import { GlobalState, StepType, getSearchVariables } from '../../../pages/multi-step-page/steps';
 import { AddNodeEvent } from '../../node-properties/node-properties-editor.component';
 import { TreeVisualizerDisplay } from '../../tree-visualizer/tree-visualizer.component';
+import { IsMweState } from '../../../pages/multi-word-expressions/multi-word-expressions.component';
+
+const MweAttributes = [
+    '#mwe_arguments_heads_fringe',
+    '#mwe_arguments_heads_hdword',
+    '#mwe_arguments_heads_hdlemma',
+    '#mwe_arguments_heads_rel',
+    '#mwe_arguments_frame',
+    '#mwe_arguments_rel_cats_fringe',
+    '#mwe_arguments_rel_cats_poscat',
+    '#mwe_arguments_rel_cats_rel',
+    '#mwe_components_lemma_parts',
+    '#mwe_components_word_parts',
+    '#mwe_components_marked_utt',
+    '#mwe_determinations_comp_lemma',
+    '#mwe_determinations_fringe',
+    '#mwe_determinations_head_lemma',
+    '#mwe_determinations_head_pos_cat',
+    '#mwe_determinations_head_word',
+    '#mwe_determinations_node_cat',
+    '#mwe_determinations_node_rel',
+    '#mwe_modifications_comp_lemma',
+    '#mwe_modifications_fringe',
+    '#mwe_modifications_head_lemma',
+    '#mwe_modifications_head_pos_cat',
+    '#mwe_modifications_head_word',
+    '#mwe_modifications_node_cat',
+    '#mwe_modifications_node_rel',
+];
 
 @Component({
     animations,
@@ -47,6 +77,7 @@ export class AnalysisComponent extends StepDirective<GlobalState> implements OnI
     private $draggable: any | undefined;
 
     private pivotUiOptions: PivotUiOptions;
+    private attributes: string[] = [];
     private metadata: TreebankMetadata[] = [];
 
     private hitsSubject = new BehaviorSubject<Hit[]>([]);
@@ -83,7 +114,7 @@ export class AnalysisComponent extends StepDirective<GlobalState> implements OnI
     public showMoreSubject = new BehaviorSubject<number>(0);
     public showExplanation = true;
 
-    public attributes: { value: string, label: string }[];
+    public nodeAttributes: { value: string, label: string }[];
 
     @Input()
     public xpath: string;
@@ -170,14 +201,27 @@ export class AnalysisComponent extends StepDirective<GlobalState> implements OnI
                 const metadata: TreebankMetadata[][] = await Promise.all(
                     selectedTreebanks.corpora.map(async corpus => (await corpus.corpus.treebank).details.metadata()));
                 this.metadata = metadata.flatMap(x => x);
-                this.metadata = [];  // TODO temporarily introduced this as long as metadata is not working
             });
 
         const results$ = this.state$.pipe(
             debounceTime(100),
-            switchMap(({ selectedTreebanks, variableProperties }) => {
+            switchMap((state) => {
+                const { selectedTreebanks, variableProperties } = state;
                 this.isLoading = true;
                 this.hitsSubject.next([]);
+                let searchBehavior: SearchBehaviour;
+
+                if (IsMweState(state)) {
+                    searchBehavior = {
+                        expandIndex: true,
+                        // TODO: maybe some special behavior needed here?
+                        supersetXpath: null,
+                        mweQueries: state.querySet.map(query => query.xpath)
+                    };
+                    this.attributes = MweAttributes;
+                } else {
+                    this.attributes = [];
+                }
 
                 // fetch all results for all selected components/treebanks
                 // and merge them into a single stream that's subscribed to.
@@ -189,7 +233,8 @@ export class AnalysisComponent extends StepDirective<GlobalState> implements OnI
                     false,
                     true,
                     [],
-                    getSearchVariables(variables, variableProperties)
+                    getSearchVariables(variables, variableProperties),
+                    searchBehavior
                 )));
 
                 return searchResults.pipe(finalize(() => {
@@ -379,7 +424,7 @@ export class AnalysisComponent extends StepDirective<GlobalState> implements OnI
 
         this.ngZone.run(() => {
             // show the window to add a new variable for analysis
-            this.attributes = attributes;
+            this.nodeAttributes = attributes;
             // no need to show that they can drag a node if they just did
             this.showExplanation = false;
             const values = attributes.map(x => x.value);
@@ -393,7 +438,7 @@ export class AnalysisComponent extends StepDirective<GlobalState> implements OnI
 
     private async show(selectedVariables: SelectedVariable[], hits: Hit[]) {
         try {
-            this.pivot(this.metadata.map(m => m.field), hits, selectedVariables);
+            this.pivot(this.attributes, this.metadata.map(m => m.field), hits, selectedVariables);
             this.makeDraggable();
         } catch (error) {
             // TODO: improved error notification
@@ -406,7 +451,7 @@ export class AnalysisComponent extends StepDirective<GlobalState> implements OnI
         this.$table = undefined;
     }
 
-    private pivot(metadataKeys: string[], hits: Hit[], selectedVariables: SelectedVariable[]) {
+    private pivot(attributeKeys: string[], metadataKeys: string[], hits: Hit[], selectedVariables: SelectedVariable[]) {
         const variables = selectedVariables.reduce((grouped, s) => {
             const name = this.analysisService.joinNodesVariableId(s.nodes);
             if (grouped[name]) {
@@ -420,7 +465,8 @@ export class AnalysisComponent extends StepDirective<GlobalState> implements OnI
         const pivotData = this.analysisService.getFlatTable(
             hits,
             variables,
-            metadataKeys);
+            metadataKeys,
+            attributeKeys);
         if (!this.$table) {
             this.disabled = false;
             this.$element.empty();

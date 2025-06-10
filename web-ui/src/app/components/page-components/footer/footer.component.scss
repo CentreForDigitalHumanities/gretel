@@ -4,15 +4,10 @@
     max-width: 100%;
 }
 
-.university-logo,
-.lab-logo {
+.centre-logo {
     display: inline-block;
-    height: 50px;
-}
-
-.university-logo {
-    padding-right: 10px;
-    width: 200px;
+    width: 450px;
+    max-width: calc(100vw - 7rem);
 }
 
 .lab-logo {

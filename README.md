@@ -3,8 +3,6 @@
 [![Actions Status](https://github.com/UUDigitalHumanitieslab/gretel-django/workflows/Tests/badge.svg)](https://github.com/UUDigitalHumanitieslab/gretel-django/actions)
 [![DOI](https://zenodo.org/badge/95562504.svg)](https://zenodo.org/badge/latestdoi/95562504)
 
-This is currently under active development. The stable predecessor can be found at <http://gretel.hum.uu.nl> (and the source at <https://github.com/UUDigitalHumanitieslab/gretel>).
-
 ## Before you start
 
 You need to install the following software:
@@ -264,7 +262,7 @@ When searching for a more specific structure, this is unlikely to occur.
 - [Ben Bonfil](https://www.uu.nl/staff/BBonfil) and [Tijmen Baarda](https://www.uu.nl/staff/TCBaarda): additional GrETEL 5 functionality and improvements;
 - [Jan Odijk](https://www.clariah.nl/nl/personen/jan-odijk) project lead for GrETEL 4 and GrETEL 5 developments;
 - [Koen Mertens](https://github.com/KCMertens): federated search at [Instituut voor de Nederlandse taal](https://ivdnt.org).
-- Colleagues at the [Centre for Computational Linguistics at KU Leuven](http://www.arts.kuleuven.be/ling/ccl), and [Utrecht University Digital Humanities Lab](https://dig.hum.uu.nl) for their feedback.
+- Colleagues at the [Centre for Computational Linguistics at KU Leuven](http://www.arts.kuleuven.be/ling/ccl), and [Centre for Digital Humanities at Utrecht University](https://cdh.uu.nl/about/research-software-lab/) for their feedback.
 
 ## License
 

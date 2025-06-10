@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Iterable, Optional, Callable
+from typing import Any, Dict, Iterable, Optional, Callable
 
 from lxml import etree
 
@@ -22,6 +22,7 @@ class Result:
     _variables: str
     _nexts: str
     _prevs: str
+    attributes: Dict[str, Any] = {}
 
     def __init__(self, match: BaseXMatch):
         self._match = match
@@ -42,13 +43,14 @@ class Result:
             meta=self._match.meta,
             variables=self._variables,
             component=self._match.component,
-            database=self._match.database)
+            database=self._match.database,
+            attributes=self.attributes)
 
     @property
     def tree(self) -> etree.ElementTree:
         if self._tree is None:
             # important: we have to use lxml.etree and not Python's builtin ElementTree
-            # for compatability with mwe-query
+            # for compatibility with mwe-query
             self._tree = etree.fromstring(self._match.xml_sentences)
         return self._tree
 
@@ -66,6 +68,10 @@ class Result:
     def variables(self, variables):
         # this is set by SearchQuery, but variable resolution could potentially be moved here
         self._variables = variables
+
+    @property
+    def begins(self) -> Iterable[int]:
+        return (int(begin) for begin in self._match.begins.split('-'))
 
     def add_context(self, prevs, nexts):
         self._prevs = prevs

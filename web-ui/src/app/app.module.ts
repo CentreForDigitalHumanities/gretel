@@ -47,7 +47,6 @@ import { NavigationComponent } from './components/page-components/header/navigat
 import { HeaderComponent } from './components/page-components/header/header.component';
 import { Header3Component } from './components/page-components/header-3/header-3.component';
 import { GretelWebsiteLinkComponent } from './components/page-components/gretel-website-link/gretel-website-link.component';
-import { BalloonDirective } from './balloon.directive';
 import { SubtitleDirective } from './subtitle.directive';
 
 import {
@@ -85,12 +84,12 @@ import { HighlightMatchPipe } from './highlight-match.pipe';
 import { TransitionNumbersPipe } from './transition-numbers.pipe';
 import { QuerySetComponent } from './components/step/query-set/query-set.component';
 import { MweResultsComponent } from './components/step/mwe-results/mwe-results.component';
+import { LegacyComponent } from './pages/legacy-component';
 
 export const declarations: any[] = [
     AddressComponent,
     AnalysisComponent,
     AppComponent,
-    BalloonDirective,
     BodyHeaderComponent,
     BreadcrumbBarComponent,
     DistributionListComponent,
@@ -112,6 +111,7 @@ export const declarations: any[] = [
     AboutPageComponent,
     HomeContentComponent,
     HomePageComponent,
+    LegacyComponent,
     LoginStatusComponent,
     MatrixComponent,
     MatrixOptionComponent,

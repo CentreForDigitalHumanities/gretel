@@ -26,19 +26,19 @@
                             <div class="field is-grouped">
                                 <p class="control prop-toggle" (click)="toggle($event, node, prop)"
                                     [ngClass]="{'prop-disabled': !prop.enabled, 'prop-enabled': prop.enabled}">
-                                    <span class="button disable-toggle is-danger is-inverted" grtBalloon="Disable custom property">
+                                    <span class="button disable-toggle is-danger is-inverted" pTooltip="Disable custom property">
                                         <span class="icon">
                                             <fa-icon [icon]="faBan" aria-hidden="true"></fa-icon>
                                         </span>
                                     </span>
-                                    <span class="button enable-toggle is-success is-inverted" grtBalloon="Enable custom property">
+                                    <span class="button enable-toggle is-success is-inverted" pTooltip="Enable custom property">
                                         <span class="icon">
                                             <fa-icon [icon]="faCheck" aria-hidden="true"></fa-icon>
                                         </span>
                                     </span>
                                 </p>
                                 <p class="control">
-                                    <span class="button is-black is-inverted" (click)="delete($event, node, prop)" grtBalloon="Remove custom property">
+                                    <span class="button is-black is-inverted" (click)="delete($event, node, prop)" pTooltip="Remove custom property">
                                         <span class="icon">
                                             <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
                                         </span>
@@ -61,7 +61,7 @@
                     <input class="input" type="text" name="propExpression" [(ngModel)]="propExpression" required />
                 </td>
                 <td>
-                    <button type="submit" class="button is-primary" grtBalloon="Add custom property">
+                    <button type="submit" class="button is-primary" pTooltip="Add custom property">
                         <span class="icon">
                             <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
                         </span>

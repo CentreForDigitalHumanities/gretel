@@ -36,7 +36,6 @@
         "@fortawesome/free-solid-svg-icons": "^6.2.1",
         "@ng-select/ng-select": "^10.0.3",
         "ace-builds": "^1.15.1",
-        "balloon-css": "^1.2.0",
         "bezier-easing": "^2.1.0",
         "bulma": "^0.9.4",
         "bulma-badge": "^3.0.1",

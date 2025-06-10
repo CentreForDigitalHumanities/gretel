@@ -60,10 +60,15 @@ export class AnalysisService {
         };
     }
 
-    private getRow(variables: { [name: string]: string[] }, metadataKeys: string[], result: Hit): Row {
+    private getRow(variables: { [name: string]: string[] }, metadataKeys: string[], attributeKeys: string[], result: Hit): Row {
         const metadataValues: { [name: string]: string } = {};
         for (const key of metadataKeys) {
             metadataValues[key] = result.metaValues[key];
+        }
+
+        const attributeValues: { [name: string]: string } = {};
+        for (const key of attributeKeys) {
+            attributeValues[key] = result.attributes[key];
         }
 
         const nodeVariableValues: { [name: string]: NodeProperties } = {};
@@ -82,7 +87,7 @@ export class AnalysisService {
             nodeVariableValues[name] = values;
         }
 
-        return { metadataValues, nodeVariableValues };
+        return { metadataValues, attributeValues, nodeVariableValues };
     }
 
     /**
@@ -115,18 +120,20 @@ export class AnalysisService {
      * @param searchResults The results to parse.
      * @param variables The variables and their properties to return, which should be present in the results.
      * @param metadataKeys The metadata keys to return, which should be present in the results.
+     * @param attributeKeys The attribute keys to return, which should be present in the results.
      * @returns The first row contains the column names, the preceding the associated values.
      */
-    public getFlatTable(searchResults: Hit[], variables: { [name: string]: string[] }, metadataKeys: string[]): string[][] {
+    public getFlatTable(searchResults: Hit[], variables: { [name: string]: string[] }, metadataKeys: string[], attributeKeys: string[]): string[][] {
         const rows: Row[] = [];
-
+        const attributeKeysWithoutPrefix = attributeKeys.map(attr => attr.replace(/^#/, ''));
         for (const result of searchResults) {
-            const row = this.getRow(variables, metadataKeys, result);
+            const row = this.getRow(variables, metadataKeys, attributeKeysWithoutPrefix, result);
             rows.push(row);
         }
 
         const columnNames: string[] = [];
         columnNames.push(...metadataKeys);
+        columnNames.push(...attributeKeys);
 
         // remove the starting $ variable identifier
         for (const name of Object.keys(variables)) {
@@ -140,6 +147,8 @@ export class AnalysisService {
             const line: string[] = [];
 
             line.push(...metadataKeys.map(key => row.metadataValues[key] || AnalysisService.placeholder));
+            line.push(...attributeKeysWithoutPrefix.map(key => row.attributeValues[key] || AnalysisService.placeholder))
+
             for (const name of Object.keys(variables)) {
                 line.push(...variables[name].map(attr => row.nodeVariableValues[name][attr]));
             }
@@ -157,5 +166,6 @@ export interface NodeProperties {
 
 export interface Row {
     metadataValues: { [name: string]: string };
+    attributeValues: { [name: string]: string };
     nodeVariableValues: { [name: string]: NodeProperties };
 }

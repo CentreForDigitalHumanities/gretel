@@ -10,31 +10,28 @@ from services.basex import basex
 
 def userinputyesno(prompt, default=False):
     if default is True:
-        default_view = ' [Y/n]'
+        default_view = " [Y/n]"
     else:
-        default_view = ' [y/N]'
-    sys.stderr.write(prompt + default_view + '\n')
+        default_view = " [y/N]"
+    sys.stderr.write(prompt + default_view + "\n")
     answer = input()
-    if answer[:1].lower() == 'y':
+    if answer[:1].lower() == "y":
         return True
-    elif answer[:1].lower() == 'n':
+    elif answer[:1].lower() == "n":
         return False
-    elif answer.strip() == '':
+    elif answer.strip() == "":
         return default
     else:
-        sys.stderr.write('Invalid answer given.\n')
+        sys.stderr.write("Invalid answer given.\n")
         return userinputyesno(prompt, default)
 
 
 class Command(BaseCommand):
-    help = 'Add treebank for which BaseX databases already exist'
+    help = "Add treebank for which BaseX databases already exist"
     requires_migrations_checks = True
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            'configuration',
-            help='JSON configuration file'
-        )
+        parser.add_argument("configuration", help="JSON configuration file")
 
     class InputError(RuntimeError):
         pass
@@ -51,26 +48,23 @@ class Command(BaseCommand):
             sentences = basex_db.get_number_of_sentences()
         except OSError as err:
             raise CommandError(
-                'Error accessing BaseX database {}: {}'
-                ' - probably this database does not exist.'
-                .format(dbname, str(err))
+                "Error accessing BaseX database {}: {}"
+                " - probably this database does not exist.".format(dbname, str(err))
             )
         return basex_db, words, sentences
 
     def create_component(self, comp: dict):
         try:
-            slug = comp['slug']
-            title = comp['title']
-            description = comp['description']
-            databases = comp['databases']
+            slug = comp["slug"]
+            title = comp["title"]
+            description = comp["description"]
+            databases = comp["databases"]
         except KeyError as err:
-            raise CommandError('Key {} missing in component definition.'
-                               .format(err))
-        component = Component(slug=slug, title=title,
-                              description=description)
+            raise CommandError("Key {} missing in component definition.".format(err))
+        component = Component(slug=slug, title=title, description=description)
         component.treebank = self.treebank
-        component.variant = comp.get('variant', '')
-        component.group = comp.get('group', '')
+        component.variant = comp.get("variant", "")
+        component.group = comp.get("group", "")
         basex_dbs = []
         nr_words = 0
         nr_sentences = 0
@@ -84,37 +78,34 @@ class Command(BaseCommand):
         component.nr_sentences = nr_sentences
         return component, basex_dbs
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: C901
         if not basex.test_connection():
-            raise CommandError('Cannot connect to BaseX. '
-                               'This command needs BaseX to run.')
+            raise CommandError(
+                "Cannot connect to BaseX. " "This command needs BaseX to run."
+            )
 
-        config_file = options['configuration']
+        config_file = options["configuration"]
         try:
-            self.configuration = json.loads(open(config_file, 'r').read())
+            self.configuration = json.loads(open(config_file, "r").read())
         except OSError as err:
-            raise CommandError('Cannot open configuration file: {}.'
-                               .format(str(err)))
+            raise CommandError("Cannot open configuration file: {}.".format(str(err)))
         except json.JSONDecodeError as err:
-            raise CommandError('Cannot parse configuration file: {}.'
-                               .format(str(err)))
+            raise CommandError("Cannot parse configuration file: {}.".format(str(err)))
 
         self.treebank = Treebank()
         try:
-            self.treebank.slug = self.configuration['slug']
-            self.treebank.title = self.configuration['title']
-            self.config_components = self.configuration['components']
+            self.treebank.slug = self.configuration["slug"]
+            self.treebank.title = self.configuration["title"]
+            self.config_components = self.configuration["components"]
         except KeyError as err:
-            raise CommandError('Key {} missing from configuration file.'
-                               .format(err))
+            raise CommandError("Key {} missing from configuration file.".format(err))
         if Treebank.objects.filter(slug=self.treebank.slug).count() != 0:
-            raise CommandError('Treebank {} already exists.'
-                               .format(self.treebank.slug))
+            raise CommandError("Treebank {} already exists.".format(self.treebank.slug))
 
         # Optional treebank-wide fields that are stored in JSON
-        self.treebank.variants = self.configuration.get('variants', '[]')
-        self.treebank.groups = self.configuration.get('groups', '{}')
-        self.treebank.metadata = self.configuration.get('metadata', '{}')
+        self.treebank.variants = self.configuration.get("variants", "[]")
+        self.treebank.groups = self.configuration.get("groups", "{}")
+        self.treebank.metadata = self.configuration.get("metadata", "{}")
 
         # Get all Component and BaseXDB objects
         component_objs = []
@@ -131,14 +122,19 @@ class Command(BaseCommand):
         for db_obj in all_db_objs:
             db_obj.save()
 
-        self.stdout.write(self.style.SUCCESS(
-            'Successfully imported treebank {} with existing BaseX databases'
-            .format(self.treebank.slug)
-        ))
+        self.stdout.write(
+            self.style.SUCCESS(
+                "Successfully imported treebank {} with existing BaseX databases".format(
+                    self.treebank.slug
+                )
+            )
+        )
 
         if settings.DELETE_COMPONENTS_FROM_BASEX:
-            self.stdout.write(self.style.WARNING(
-                'Warning: the DELETE_COMPONENTS_FROM_BASEX setting is '
-                'True, which means that the existing BaseX databases '
-                'will be deleted in case you delete this treebank.'
-            ))
+            self.stdout.write(
+                self.style.WARNING(
+                    "Warning: the DELETE_COMPONENTS_FROM_BASEX setting is "
+                    "True, which means that the existing BaseX databases "
+                    "will be deleted in case you delete this treebank."
+                )
+            )

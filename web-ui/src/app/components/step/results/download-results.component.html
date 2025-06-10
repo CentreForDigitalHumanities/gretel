@@ -1,5 +1,5 @@
-<a class="button" role="button" (click)="toggle($event)" grtBalloonLength="large" grtBalloonPosition="down"
-    grtBalloon="Download the results as a .csv-file" [grtBalloonVisible]="visible ? false : undefined">
+<a class="button" role="button" (click)="toggle($event)" tooltipPosition="bottom"
+    pTooltip="Download the results as a .csv-file">
     <span class="icon is-large">
         <fa-icon [icon]="faDownload" aria-hidden="true"></fa-icon>
     </span>
@@ -10,8 +10,8 @@
             <label class="checkbox">
                 <input type="checkbox" name="includeNodeProperties" [(ngModel)]="includeNodeProperties">
                 Include Node Properties
-                <span class="icon" grtBalloonLength="large" grtBalloonPosition="down-right"
-                    grtBalloon="For every node specified in the query, columns will be added for that node's linguistic properties e.g. the POS-value, dependency relation, phrasal category, etc.">
+                <span class="icon" tooltipPosition="bottom"
+                    pTooltip="For every node specified in the query, columns will be added for that node's linguistic properties e.g. the POS-value, dependency relation, phrasal category, etc.">
                     <fa-icon [icon]="faInfoCircle" aria-hidden="true"></fa-icon>
                 </span>
             </label>

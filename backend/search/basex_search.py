@@ -105,7 +105,7 @@ def generate_xquery_search(basex_db: str, xpath: str, variables=None) -> str:
             '{string-join($beginlist, \'-\')}||{$node}||{$meta}' \
             '||' + variables_return_fragment + '||' + \
             basex_db + '</match>'
-    # TODO: currently no support for grinded coprora.
+    # TODO: currently no support for grinded corpora.
     # Add returntb from original implementation.
     return query
 

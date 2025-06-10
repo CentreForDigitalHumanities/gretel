@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import { BehaviorSubject, Observable, ReplaySubject, merge, from, zip, EMPTY } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, merge, EMPTY } from 'rxjs';
 import { flatMap, mergeMap, catchError, shareReplay, delay, map, first } from 'rxjs/operators';
 
 import {
@@ -16,6 +16,11 @@ import {
 import { ConfigurationService } from './configuration.service';
 import { NotificationService } from './notification.service';
 
+/**
+ * Dummy component which is used to mark that a component is missing
+ * and should always be disabled and unselectable
+ */
+export const MISSING_COMPONENT_ID = '#MISSING#';
 
 export interface TreebankLookup {
     providers: { name: string, corpora: Set<string> }[];
@@ -78,6 +83,11 @@ export interface DjangoTreebankResponse {
     title: string;
     description: string;
     url_more_info: string;
+    groups?: {
+        slug: string;
+        description: string
+    }[];
+    variants?: string[];
 }
 
 interface UploadedTreebankMetadataResponse {
@@ -114,6 +124,8 @@ export interface DjangoComponentsForTreebankResponse {
     description: string;
     nr_sentences: string;
     nr_words: string;
+    group?: string;
+    variant?: string;
 }
 
 class LazyRetrieve<T> {
@@ -226,20 +238,6 @@ function makeDjangoMetadata(item: DjangoTreebankMetadataResponse): TreebankMetad
     return metadata;
 }
 
-function makeComponent(comp: ConfiguredTreebanksResponse[string]['components'][string]): TreebankComponent {
-    return {
-        description: comp.description,
-        disabled: !!comp.disabled,
-        id: comp.id,
-        sentenceCount: comp.sentences,
-        title: comp.title,
-        wordCount: comp.words,
-
-        group: comp.group || undefined,
-        variant: comp.variant || undefined,
-    };
-}
-
 function makeUploadedComponent(comp: UploadedTreebankShowResponse): TreebankComponent {
     return {
         description: '',
@@ -263,23 +261,12 @@ function makeDjangoComponent(comp: DjangoComponentsForTreebankResponse): Treeban
         title: comp.title,
         wordCount: parseInt(comp.nr_words, 10),
 
-        group: undefined,
-        variant: undefined,
+        group: comp.group,
+        variant: comp.variant,
     }
 }
 
-function makeTreebank(provider: string, id: string, bank: ConfiguredTreebanksResponse[string]) {
-    return {
-        id,
-        displayName: bank.title || id,
-        description: bank.description || undefined,
-        isPublic: true,
-        multiOption: bank.multioption != null ? bank.multioption : true,
-        provider
-    };
-}
-
-function makeUploadedTreebank(provider: string, bank: UploadedTreebankResponse) {
+function makeUploadedTreebank(provider: string, bank: UploadedTreebankResponse): Pick<Treebank, Exclude<keyof Treebank, 'details'>> {
     return {
         id: 'GRETEL-UPLOAD-' + bank.title,
         displayName: bank.title,
@@ -294,7 +281,7 @@ function makeUploadedTreebank(provider: string, bank: UploadedTreebankResponse) 
     };
 }
 
-function makeDjangoTreebank(bank: DjangoTreebankResponse) {
+function makeDjangoTreebank(bank: DjangoTreebankResponse): Pick<Treebank, Exclude<keyof Treebank, 'details'>> {
     return {
         id: bank.slug,
         displayName: bank.title,
@@ -303,39 +290,6 @@ function makeDjangoTreebank(bank: DjangoTreebankResponse) {
         multiOption: true,
         provider: 'gretel',
     }
-}
-
-function makeComponentGroup(id: string, description: string, components: TreebankComponent[]): ComponentGroup {
-    const compsInGroup = components.filter(c => c.group === id && !!c.variant);
-
-    return {
-        components: compsInGroup.reduce<{ [variant: string]: string }>((items, comp) => {
-            items[comp.variant] = comp.id;
-            return items;
-        }, {}),
-        description,
-        key: id,
-        sentenceCount: compsInGroup.reduce((count, comp) => { count.add(comp.sentenceCount); return count; }, new FuzzyNumber(0)),
-        wordCount: compsInGroup.reduce((count, comp) => { count.add(comp.wordCount); return count; }, new FuzzyNumber(0)),
-    };
-}
-
-function makeTreebankInfo(provider: string, corpusId: string, bank: ConfiguredTreebanksResponse[string]): Treebank {
-    const treebank = makeTreebank(provider, corpusId, bank);
-    const components: TreebankComponent[] = Object.values(bank.components).map(makeComponent);
-    const componentGroups: ComponentGroup[] | undefined = bank.groups
-        ? Object.entries(bank.groups).map(([id, group]) => makeComponentGroup(id, group.description, components))
-        : undefined;
-    const variants: string[] | undefined = bank.variants ? Object.keys(bank.variants) : undefined;
-
-    return new ReadyTreebank(
-        treebank,
-        {
-            components: components.reduce<TreebankDetails['components']>((cs, c) => { cs[c.id] = c; return cs; }, {}),
-            metadata: bank.metadata,
-            variants,
-            componentGroups,
-        });
 }
 
 @Injectable()
@@ -453,7 +407,7 @@ export class TreebankService {
                 )
                 .subscribe(ob);
         })();
-        
+
         return ob;
     }
 
@@ -478,47 +432,70 @@ export class TreebankService {
             });
     }
 
+    private async getDjangoComponents(bank: DjangoTreebankResponse) {
+        const djangoComponents = await this.configurationService.getDjangoUrl('treebanks/treebank/' + bank.slug + '/components/')
+            .then(url => this.http.get<DjangoComponentsForTreebankResponse[]>(url, {}).toPromise());
+
+        const components: TreebankComponent[] = djangoComponents.map(makeDjangoComponent);
+        return components.reduce<TreebankComponents>((cs, c) => { cs[c.id] = c; return cs; }, {});
+    }
+
     private getDjangoTreebank(bank: DjangoTreebankResponse): Treebank {
+        const components = new LazyRetrieve(async () => await this.getDjangoComponents(bank));
         return new LazyTreebank(
             makeDjangoTreebank(bank),
             {
                 metadata: async () => {
                     const djangoMetadata = await this.configurationService.getDjangoUrl('treebanks/treebank/' + bank.slug + '/metadata/')
-                        .then(url => this.http.get<{'metadata': DjangoTreebankMetadataResponse[]}>(url, { }).toPromise());
+                        .then(url => this.http.get<{ 'metadata': DjangoTreebankMetadataResponse[] }>(url, {}).toPromise());
                     return djangoMetadata.metadata.map(makeDjangoMetadata);
                 },
-                componentGroups: async () => undefined,
-                components: async () => {
-                    const djangoComponents = await this.configurationService.getDjangoUrl('treebanks/treebank/' + bank.slug + '/components/')
-                        .then(url => this.http.get<DjangoComponentsForTreebankResponse[]>(url, {  }).toPromise());
-                    
-                    const components: TreebankComponent[] = djangoComponents.map(makeDjangoComponent);
-                    return components.reduce<TreebankComponents>((cs, c) => { cs[c.id] = c; return cs; }, {});
+                componentGroups: async () => {
+                    // are the components grouped?
+                    if (bank.groups?.length < 2) {
+                        return undefined;
+                    }
+
+                    const groups: { [key: string]: ComponentGroup } = {};
+                    for (const component of Object.values(await components.get())) {
+                        if (component.group) {
+                            if (!groups[component.group]) {
+                                groups[component.group] = {
+                                    components: { [component.variant]: component.id },
+                                    key: component.group,
+                                    sentenceCount: new FuzzyNumber(component.sentenceCount),
+                                    wordCount: new FuzzyNumber(component.wordCount),
+                                    description: component.description
+                                }
+                            } else {
+                                const group = groups[component.group];
+                                group.components[component.variant] = component.id;
+                                group.sentenceCount.add(component.sentenceCount);
+                                group.wordCount.add(component.wordCount);
+                            }
+                        }
+                    }
+
+                    // add missing components for variants
+                    if (bank.variants?.length > 1) {
+                        for (const group of bank.groups) {
+                            for (const variant of bank.variants) {
+                                if (!groups[group.slug].components[variant]) {
+                                    groups[group.slug].components[variant] = MISSING_COMPONENT_ID;
+                                }
+                            }
+                        }
+                    }
+
+                    return Object.values(groups).sort(
+                        (a, b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0);
                 },
-                variants: async () => undefined,
+                components: async () => { return await components.get(); },
+                variants: async () => {
+                    // should the components (also) be grouped by variant?
+                    return bank.variants?.length > 1 ? [...bank.variants] : undefined;
+                },
             }
         )
-    }
-
-    /**
-     * Request treebanks for all providers (except the user-uploaded ones),
-     * process them, and yield them one by one.
-     */
-    private getAllConfiguredTreebanks(): Observable<Treebank> {
-        return from(this.configurationService.getProviders()).pipe(
-            // unpack providers array
-            flatMap(providers => providers),
-            // get url for provider (wrap provider in array or zip will unpack the string into characters)
-            flatMap(provider => zip([provider], this.configurationService.getApiUrl(provider, 'configured_treebanks'))),
-            // get treebanks for provider
-            flatMap(([provider, url]) => this.getConfiguredTreebanks(provider, url)),
-            // unpack multiple treebank results into distinct messages
-            flatMap(treebanks => treebanks),
-        );
-    }
-
-    private async getConfiguredTreebanks(provider: string, url: string): Promise<Treebank[]> {
-        return this.http.get<ConfiguredTreebanksResponse>(url).toPromise()
-            .then(r => Object.entries(r).map(([id, bank]) => makeTreebankInfo(provider, id, bank)));
     }
 }

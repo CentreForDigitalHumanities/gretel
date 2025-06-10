@@ -6,7 +6,7 @@
                     <p class="control">
                         <a class="button" role="button" (click)="hideFiltersColumn = !hideFiltersColumn"
                             [ngClass]="{'is-secondary': hideFiltersColumn, 'has-badge-rounded': activeFilterCount}" [attr.data-badge]="activeFilterCount ? activeFilterCount : undefined"
-                            title="Toggle filters">
+                            pTooltip="Toggle filters">
                             <span class="icon">
                                 <fa-icon [icon]="faBars" aria-hidden="true"></fa-icon>
                             </span>
@@ -45,8 +45,8 @@
                         <grt-download-results [loading]="loadingDownload" (downloadResults)="downloadResults.next($event)"></grt-download-results>
                     </p>
                     <p class="control" *ngIf="!loading">
-                        <a class="button" role="button" (click)="downloadFilelist.next()" grtBalloonLength="large"
-                            grtBalloonPosition="down" grtBalloon="Download the names of the files in a filelist (.fl)">
+                        <a class="button" role="button" (click)="downloadFilelist.next()"
+                            tooltipPosition="bottom" pTooltip="Download the names of the files in a filelist (.fl)">
                             <span class="icon is-large">
                                 <fa-icon [icon]="faFileAlt" aria-hidden="true"></fa-icon>
                             </span>
@@ -56,8 +56,7 @@
             </div>
             <div class="level-item">
                 <div class="field">
-                    <p class="control" grtBalloonPosition="down" grtBalloon="Print Results"
-                        [grtBalloonVisible]="loading ? false : undefined">
+                    <p class="control" tooltipPosition="bottom" pTooltip="Print Results">
                         <a class="button" role="button" [ngClass]="{'is-loading':loading}" (click)="print()">
                             <span class="icon is-large">
                                 <fa-icon [icon]="faPrint" aria-hidden="true"></fa-icon>
@@ -69,15 +68,15 @@
             <div class="level-item">
                 <div class="field">
                     <p class="control" (click)="toggleContext.next()">
-                        <a class="button is-warning" role="button" grtBalloonLength="large" grtBalloonPosition="down"
-                            grtBalloon="Click to show the sentences directly before and after the hits."
+                        <a class="button is-warning" role="button" tooltipPosition="bottom"
+                            pTooltip="Click to show the sentences directly before and after the hits."
                             *ngIf="!retrieveContext">
                             <span class="icon is-large">
                                 <fa-icon [icon]="faCommentSlash" aria-hidden="true"></fa-icon>
                             </span>
                         </a>
-                        <a class="button is-primary" role="button" grtBalloonLength="large" grtBalloonPosition="down"
-                            grtBalloon="Click to hide the sentences surrounding the hits." *ngIf="retrieveContext">
+                        <a class="button is-primary" role="button" tooltipPosition="bottom"
+                            pTooltip="Click to hide the sentences surrounding the hits." *ngIf="retrieveContext">
                             <span class="icon is-large">
                                 <fa-icon [icon]="faCommentDots" aria-hidden="true"></fa-icon>
                             </span>

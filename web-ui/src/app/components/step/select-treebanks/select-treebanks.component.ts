@@ -34,7 +34,16 @@ export class SelectTreebanksComponent extends StepDirective<GlobalStateExampleBa
     faLock = faLock;
     faTags = faTags;
 
-    public treebanks: (Treebank & { color: string, userName: string, preConfigured: boolean, selected: boolean })[] = [];
+    public treebanks: (Treebank & {
+        color: string,
+        userName: string,
+        preConfigured: boolean,
+        selected: boolean,
+        /**
+         * Don't automatically hide its subtreebank when it has been manually opened
+         */
+        opened: boolean
+    })[] = [];
     public loading = true;
     public stepType = StepType.SelectTreebanks;
     public selection: TreebankSelection;
@@ -65,15 +74,20 @@ export class SelectTreebanksComponent extends StepDirective<GlobalStateExampleBa
             treebankService.treebanks.pipe(
                 map(lookup => Object.values(lookup.data).flatMap(provider => Object.values(provider))))
                 .subscribe(treebanks => {
-                    this.treebanks = treebanks.map(treebank => ({
-                        ...treebank,
-                        ...{
-                            color: this.determineUserColor(treebank.userId),
-                            userName: this.determineUserName(treebank.email, treebank.userId),
-                            preConfigured: (treebank.userId ?? null) == null
-                        },
-                        selected: this.selection && this.selection.isSelected(treebank.provider, treebank.id)
-                    })).sort((a, b) => comparatorGenerator(
+                    this.treebanks = treebanks.map(treebank => {
+                        const selected = this.selection && this.selection.isSelected(treebank.provider, treebank.id);
+                        const existing = this.treebanks.find(t => t.id === treebank.id);
+                        return {
+                            ...treebank,
+                            ...{
+                                color: this.determineUserColor(treebank.userId),
+                                userName: this.determineUserName(treebank.email, treebank.userId),
+                                preConfigured: (treebank.userId ?? null) == null
+                            },
+                            selected,
+                            opened: existing?.opened || selected
+                        }
+                    }).sort((a, b) => comparatorGenerator(
                         a,
                         b,
                         value => value.displayName.toUpperCase(),
@@ -96,6 +110,9 @@ export class SelectTreebanksComponent extends StepDirective<GlobalStateExampleBa
                 this.selection = selection;
                 this.treebanks = this.treebanks.map(treebank => {
                     treebank.selected = selection.isSelected(treebank.provider, treebank.id);
+                    if (treebank.selected) {
+                        treebank.opened = true;
+                    }
                     return treebank;
                 });
             })
@@ -115,6 +132,12 @@ export class SelectTreebanksComponent extends StepDirective<GlobalStateExampleBa
     }
 
     toggleTreebank(provider: string, corpus: string) {
+        const existing = this.treebanks.find(t => t.id === corpus);
+        if (existing.selected) {
+            // manually closed it
+            existing.opened = false;
+        }
+
         this.treebankSelectionService.toggleCorpus(provider, corpus);
     }
 

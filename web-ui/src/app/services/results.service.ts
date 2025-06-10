@@ -34,6 +34,10 @@ export interface SearchBehaviour {
         the superset query instead of directly */
     supersetXpath: string,
     expandIndex: boolean,
+    /**
+     * The queries used to search for MWEs (main, neighbors, superset)
+     */
+    mweQueries?: string[],
 
     /** a list of xpath queries whose results should be excluded from the results of the main query */
     exclusions?: string[],
@@ -44,7 +48,7 @@ export class ResultsService {
     defaultIsAnalysis = false;
     defaultMetadataFilters: FilterValue[] = [];
     defaultVariables: SearchVariable[] = null;
-    defaultBehaviour: SearchBehaviour = {supersetXpath: null, expandIndex: false};
+    defaultBehaviour: SearchBehaviour = { supersetXpath: null, mweQueries: null, expandIndex: false };
 
     constructor(
         private http: HttpClient,
@@ -435,6 +439,7 @@ export class ResultsService {
                 nodeIds: result.ids.split('-').map(x => parseInt(x, 10)),
                 nodeStarts,
                 metaValues,
+                attributes: result.attributes,
                 /**
                  * Contains the XML of the node matching the variable
                  */
@@ -572,10 +577,22 @@ type ApiSearchResult = {
         ids: string,
         begins: string,
         xml_sentences: string,
+        /**
+         * Information from the metadata field of the Alpino XML
+         */
         meta: string,
+        /**
+         * XML containing the attributes for the nodes in the Alpino XML
+         * matching the variable selectors.
+         */
         variables: string,
+        /**
+         * Attributes which might be derived programmatically such
+         * as the MWE information
+         */
+        attributes: { [key: string]: string },
         component: string,
-        database: string
+        database: string,
     }[],
     query_id: number,
     search_percentage: number,
@@ -621,6 +638,7 @@ export interface Hit {
     /** The begin position of the matching nodes */
     nodeStarts: number[];
     metaValues: { [key: string]: string };
+    attributes: { [key: string]: string },
     /** Contains the properties of the node matching the variable */
     variableValues: { [variableName: string]: { [propertyKey: string]: string } };
 }

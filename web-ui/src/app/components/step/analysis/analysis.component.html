@@ -21,9 +21,9 @@
                     Tree
                 </div>
                 <div class="level-item level-right is-hidden-print">
-                    <p class="control">
-                        <a class="button" role="button" (click)="treeDisplay = 'both'" grtBalloonPosition="left"
-                            grtBalloon="Full screen display of the tree.">
+                    <p class="control" tooltipPosition="bottom"
+                    pTooltip="Full screen display of the tree.">
+                        <a class="button" role="button" (click)="treeDisplay = 'both'" >
                             <span class="icon is-large">
                                 <fa-icon [icon]="faExpand" aria-hidden="true"></fa-icon>
                             </span>
@@ -70,7 +70,7 @@
             <br />
             <div class="field">
                 <ng-select [(ngModel)]="selectedVariable.attribute" required="true">
-                    <ng-option *ngFor="let attribute of attributes" [value]="attribute.value">
+                    <ng-option *ngFor="let attribute of nodeAttributes" [value]="attribute.value">
                         {{attribute.label}}
                     </ng-option>
                 </ng-select>
@@ -101,7 +101,7 @@
         <h1 class="title" [ngClass]="{'is-loading': isLoading}" grtSubtitle>Analysis Table</h1>&nbsp;
     </div>
     <div class="level-right">
-        <div class="level-item" *ngIf="canShowMore" grtBalloon="More data is ready to be shown in the table">
+        <div class="level-item" *ngIf="canShowMore" pTooltip="More data is ready to be shown in the table">
             <a class="button has-badge-rounded" [ngClass]="{'has-badge-warning': isLoading}" role="button"
                 (click)="showMore()" [attr.data-badge]="hitsCount - renderCount | transitionNumbers">
                 Show More Data

@@ -7,8 +7,8 @@
             Which treebank do you want to query? Click on the treebank name to see its different components. If you
             would
             like to get more information on these treebanks, you can find the project websites in
-            <a [routerLink]="['/','documentation']" fragment="about-corpora" target="_blank" grtBalloonPosition="down"
-                grtBalloon="More information on corpora">our FAQ</a>.
+            <a [routerLink]="['/','documentation']" fragment="about-corpora" target="_blank" tooltipPosition="bottom"
+                pTooltip="More information on corpora">our FAQ</a>.
         </p>
     </div>
     <div class="column">
@@ -32,7 +32,7 @@
             </div>
             <p class="control" *ngIf="userProviders.length">
                 <button class="button" [ngClass]="{'is-primary': showUserTags }" (click)="showUserTags=!showUserTags"
-                    grtBalloon="Show the treebanks' users">
+                    pTooltip="Show the treebanks' users">
                     <span class="icon">
                         <fa-icon [icon]="faTags" aria-hidden="true"></fa-icon>
                     </span>
@@ -72,7 +72,7 @@
     </div>
 </div>
 <ng-container *ngFor="let treebank of treebanks">
-    <ng-container *ngIf="treebank.selected ||
+    <ng-container *ngIf="treebank.selected || treebank.opened ||
         (((treebank.displayName | highlightMatch:filterText) || (treebank.description | highlightMatch:filterText) || (showUserTags && (treebank.userName | highlightMatch:filterText))) &&
          ((showPreConfigured && treebank.preConfigured) ||
           (showUsers.indexOf(treebank.userId) >= 0)))">
@@ -101,7 +101,7 @@
                 </ng-container>
             </label>
         </div>
-        <div *ngIf="treebank.selected" class="box-is-shadowless" [@slideDown]>
+        <div *ngIf="treebank.selected || treebank.opened" class="box-is-shadowless" [@slideDown]>
             <grt-sub-treebanks [treebank]="treebank"></grt-sub-treebanks>
         </div>
     </ng-container>

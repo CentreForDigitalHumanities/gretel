@@ -7,7 +7,6 @@ from django.dispatch import receiver
 
 from copy import deepcopy
 import logging
-import os
 import pathlib
 import re
 from datetime import timedelta
@@ -16,9 +15,11 @@ from lxml import etree
 
 from treebanks.models import Component
 from services.basex import basex
-from .basex_search import (generate_xquery_search,
-                           parse_search_result,
-                           generate_xquery_count)
+from .basex_search import (
+    generate_xquery_search,
+    parse_search_result,
+    generate_xquery_count,
+)
 from .types import ResultSet, Result, ResultSetFilter
 
 logger = logging.getLogger(__name__)
@@ -36,19 +37,22 @@ class ComponentSearchResult(models.Model):
     last_accessed = models.DateField(null=True, editable=False)
     number_of_results = models.PositiveIntegerField(null=True, editable=False)
     cache_size = models.PositiveBigIntegerField(
-        null=True, editable=False,
-        help_text='Size of the cached results in bytes')
-    errors = models.TextField(default='', editable=False)
+        null=True, editable=False, help_text="Size of the cached results in bytes"
+    )
+    errors = models.TextField(default="", editable=False)
     completed_part = models.PositiveIntegerField(
-        null=True, editable=False,
-        help_text='Total size in KiB of databases for which the search has '
-                  'been completed'
+        null=True,
+        editable=False,
+        help_text="Total size in KiB of databases for which the search has "
+        "been completed",
     )
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['xpath', 'component', 'variables'],
-                                    name='componentsearchresult_uniqueness')
+            models.UniqueConstraint(
+                fields=["xpath", "component", "variables"],
+                name="componentsearchresult_uniqueness",
+            )
         ]
 
     def __str__(self):
@@ -99,7 +103,7 @@ class ComponentSearchResult(models.Model):
         # running. If we save the entire model, we will overwrite the progress
         # that other processes may have saved (e.g. search_completed) in case our copy
         # of the model was not refreshed in the meantime.
-        self.save(update_fields=['last_accessed'])
+        self.save(update_fields=["last_accessed"])
         return parse_search_result(results, self.component.slug)
 
     def get_completed_part(self) -> Optional[int]:
@@ -108,7 +112,7 @@ class ComponentSearchResult(models.Model):
         return None
 
     def _truncate_results(self, results: str, number: int) -> str:
-        matches = list(re.finditer('<match>', results))
+        matches = list(re.finditer("<match>", results))
         start_of_nth_match = matches[number].span()[0]
         return results[:start_of_nth_match]
 
@@ -116,11 +120,9 @@ class ComponentSearchResult(models.Model):
         """Check if a SearchQuery object was cancelled. We get this
         immediately from the database, because this operation has to
         be frequently repeated."""
-        return SearchQuery.objects.values_list(
-            'cancelled', flat=True
-        ).get(id=query_id)
+        return SearchQuery.objects.values_list("cancelled", flat=True).get(id=query_id)
 
-    def perform_search(self, query_id=None):
+    def perform_search(self, query_id=None):  # noqa: C901
         """Perform full component search and regularly update database
         with the progress so far. Saves the object if it has no value
         for its id. Most errors are written to the model's errors
@@ -132,15 +134,15 @@ class ComponentSearchResult(models.Model):
         # Get BaseX databases belonging to component
         databases_with_size = self.component.get_databases()
         # Initialize variables
-        self.results = ''
-        self.errors = ''
+        self.results = ""
+        self.errors = ""
         self.completed_part = 0
         self.number_of_results = 0
         # Open cache file
         try:
-            resultsfile = self._get_cache_path().open(mode='w')
+            resultsfile = self._get_cache_path().open(mode="w")
         except OSError:
-            raise SearchError('Could not open caching file')
+            raise SearchError("Could not open caching file")
         try:
             with resultsfile:
                 cancelled = False
@@ -150,19 +152,20 @@ class ComponentSearchResult(models.Model):
                     size = databases_with_size[database]
                     # Check how many results we can still add to the cache file,
                     # respecting the maximum number of results per component
-                    maximum_to_add = \
-                        settings.MAXIMUM_RESULTS_PER_COMPONENT - \
-                        self.number_of_results
+                    maximum_to_add = (
+                        settings.MAXIMUM_RESULTS_PER_COMPONENT - self.number_of_results
+                    )
                     if maximum_to_add > 0:
                         # We can still add, so perform a search on this database
                         try:
-                            query = generate_xquery_search(
-                                database, self.xpath
-                            )
+                            query = generate_xquery_search(database, self.xpath)
                             result = basex.perform_query_iter(query)
                         except (OSError, UnicodeDecodeError, ValueError) as err:
-                            self.errors += 'Error searching database {}: ' \
-                                .format(database) + str(err) + '\n'
+                            self.errors += (
+                                "Error searching database {}: ".format(database)
+                                + str(err)
+                                + "\n"
+                            )
                             result = []  # No break, keep going
 
                         results_for_database = 0
@@ -187,8 +190,11 @@ class ComponentSearchResult(models.Model):
                         try:
                             count = int(basex.perform_query(query))
                         except (OSError, UnicodeDecodeError, ValueError) as err:
-                            self.errors += 'Error searching database {}: ' \
-                                .format(database) + str(err) + '\n'
+                            self.errors += (
+                                "Error searching database {}: ".format(database)
+                                + str(err)
+                                + "\n"
+                            )
                             count = 0
                         self.number_of_results += count
                     self.completed_part += size
@@ -200,7 +206,7 @@ class ComponentSearchResult(models.Model):
             if not cancelled:
                 self.search_completed = timezone.now()
         except Exception as err:
-            self.errors += f'Error searching: ${err}\n'
+            self.errors += f"Error searching: ${err}\n"
         self.last_accessed = timezone.now()
         self.save()
 
@@ -212,13 +218,14 @@ class ComponentSearchResult(models.Model):
         This method is called automatically on delete."""
         cache_path = self._get_cache_path()
         cache_path.unlink(missing_ok=True)
-        logger.info('Deleted cache for ComponentSearchResult with ID {}.'
-                    .format(self.id))
+        logger.info(
+            "Deleted cache for ComponentSearchResult with ID {}.".format(self.id)
+        )
 
     @classmethod
     def empty_cache(cls) -> int:
-        '''Empty search result cache by deleting all CSR objects.
-        Return number of CSR objects that were deleted.'''
+        """Empty search result cache by deleting all CSR objects.
+        Return number of CSR objects that were deleted."""
         # Delete all objects one by one to make sure cache files are
         # deleted as well
         count = 0
@@ -231,8 +238,7 @@ class ComponentSearchResult(models.Model):
     def purge_cache(cls):
         yesterday = timezone.now() - timedelta(days=1)
         # Get total cache size
-        total_size = \
-            cls.objects.aggregate(Sum('cache_size'))['cache_size__sum']
+        total_size = cls.objects.aggregate(Sum("cache_size"))["cache_size__sum"]
         if total_size is None:
             # This happens if all CSRs have no filled in cache size
             return
@@ -240,16 +246,14 @@ class ComponentSearchResult(models.Model):
         maximum_size = settings.MAXIMUM_CACHE_SIZE * 1024 * 1024
         to_delete = total_size - maximum_size
         if to_delete <= 0:
-            logger.info('Size of component search result cache is ok.')
+            logger.info("Size of component search result cache is ok.")
             return
         # Get CSRs starting with lowest last accessed date
         number_deleted = 0
-        for csr in cls.objects.order_by('last_accessed'):
+        for csr in cls.objects.order_by("last_accessed"):
             if csr.cache_size is None:
                 continue
-            if csr.searchquery_set.filter(
-                last_accessed__lt=yesterday
-            ).count() > 0:
+            if csr.searchquery_set.filter(last_accessed__lt=yesterday).count() > 0:
                 # Do not delete if there are queries that might still be active
                 continue
             to_delete -= csr.cache_size
@@ -258,18 +262,24 @@ class ComponentSearchResult(models.Model):
             if to_delete <= 0:
                 break
         if to_delete <= 0:
-            logger.info('Deleted the {} component search results having the '
-                        'earliest last access date to make space in cache.'
-                        .format(number_deleted))
+            logger.info(
+                "Deleted the {} component search results having the "
+                "earliest last access date to make space in cache.".format(
+                    number_deleted
+                )
+            )
         else:
-            logger.warning('Deleted {} component search results to make '
-                           'space in cache, but cache is still larger than '
-                           'maximum size.'.format(number_deleted))
+            logger.warning(
+                "Deleted {} component search results to make "
+                "space in cache, but cache is still larger than "
+                "maximum size.".format(number_deleted)
+            )
 
 
 @receiver(post_save, sender=ComponentSearchResult)
 def component_search_result_create_callback(sender, instance, using, **kwargs):
     instance.init_cache_file()
+
 
 @receiver(pre_delete, sender=ComponentSearchResult)
 def delete_basex_db_callback(sender, instance, using, **kwargs):
@@ -284,12 +294,12 @@ class SearchQuery(models.Model):
     # Fields that are filled in as soon as searching has started
     results = models.ManyToManyField(ComponentSearchResult, editable=False)
     total_database_size = models.PositiveIntegerField(
-        null=True, editable=False,
-        help_text='Total size in KiB of all databases for this query'
+        null=True,
+        editable=False,
+        help_text="Total size in KiB of all databases for this query",
     )
     cancelled = models.BooleanField(
-        default=False,
-        help_text='True if the query was cancelled by the user'
+        default=False, help_text="True if the query was cancelled by the user"
     )
     last_accessed = models.DateTimeField(null=True, editable=False)
 
@@ -309,14 +319,12 @@ class SearchQuery(models.Model):
         if not self.pk:
             # If object has not been saved we cannot add ComponentSearchResult
             raise RuntimeError(
-                'SearchQuery should be saved before calling initialize()'
+                "SearchQuery should be saved before calling initialize()"
             )
         results = []
         for component in self.components.all():
             result, created = ComponentSearchResult.objects.get_or_create(
-                xpath=self.xpath,
-                component=component,
-                variables=self.variables
+                xpath=self.xpath, component=component, variables=self.variables
             )
             if component.total_database_size is not None:
                 self.total_database_size += component.total_database_size
@@ -325,7 +333,7 @@ class SearchQuery(models.Model):
         self.save()
 
     def _component_results(self) -> Iterable[ComponentSearchResult]:
-        return self.results.all().order_by('component')
+        return self.results.all().order_by("component")
 
     def _count_results(self, result: ComponentSearchResult) -> Optional[int]:
         if not self.filters:
@@ -338,7 +346,9 @@ class SearchQuery(models.Model):
             matches = filter_(matches)
         return len(list(matches))
 
-    def get_results(self, max_results: Optional[int] = None, exclude: Optional[Set[str]] = None) -> Tuple[ResultSet, float, List]:
+    def get_results(
+        self, max_results: Optional[int] = None, exclude: Optional[Set[str]] = None
+    ) -> Tuple[ResultSet, float, List]:
         """Get results so far, except for those whose ids are in `exclude`.
         Object should have been initialized with initialize() method but search does not have to be started yet
         with perform_search() method. Return a tuple of the result as
@@ -373,13 +383,17 @@ class SearchQuery(models.Model):
             part = result_obj.get_completed_part()
             if part is not None:
                 completed_part += part
-                percentage = part / max(1, result_obj.component.total_database_size * 100)
-                counts.append({
-                    'component': result_obj.component.slug,
-                    'number_of_results': self._count_results(result_obj),
-                    'completed': result_obj.search_completed is not None,
-                    'percentage': percentage,
-                })
+                percentage = part / max(
+                    1, result_obj.component.total_database_size * 100
+                )
+                counts.append(
+                    {
+                        "component": result_obj.component.slug,
+                        "number_of_results": self._count_results(result_obj),
+                        "completed": result_obj.search_completed is not None,
+                        "percentage": percentage,
+                    }
+                )
 
         if self.total_database_size != 0 and self.total_database_size is not None:
             search_percentage = int(
@@ -405,10 +419,15 @@ class SearchQuery(models.Model):
         # early).
         result_objs_query = self.results.filter(search_completed__isnull=True)
         # add failed result objects (with errors and no results)
-        result_objs_query |= self.results.filter(number_of_results=0).exclude(errors=None).exclude(errors='')
+        result_objs_query |= (
+            self.results.filter(number_of_results=0)
+            .exclude(errors=None)
+            .exclude(errors="")
+        )
 
-        result_objs_query = result_objs_query.order_by(F('completed_part').desc(nulls_first=True),
-                                                       'component__slug')
+        result_objs_query = result_objs_query.order_by(
+            F("completed_part").desc(nulls_first=True), "component__slug"
+        )
 
         result_objs = list(result_objs_query)
         # append results that should be complete but can't be read
@@ -429,23 +448,26 @@ class SearchQuery(models.Model):
             try:
                 result_obj.perform_search(self.id)
             except SearchError:
-                logger.error('Failed executing query for ComponentSearchResult (%d)', result_obj.pk)
+                logger.error(
+                    "Failed executing query for ComponentSearchResult (%d)",
+                    result_obj.pk,
+                )
                 raise
 
             # Check if search has been cancelled in the meantime
-            self.refresh_from_db(fields=['cancelled'])
+            self.refresh_from_db(fields=["cancelled"])
             if self.cancelled:
                 # skip the rest of the components
                 break
 
     def get_errors(self) -> str:
-        errs = ''
-        result_objs = self.results.order_by('component')
+        errs = ""
+        result_objs = self.results.order_by("component")
         for result_obj in result_objs:
             if result_obj.errors:
-                errs += 'Errors in searching component {}: ' \
-                    '\n{}\n\n' \
-                    .format(result_obj.component, result_obj.errors)
+                errs += "Errors in searching component {}: " "\n{}\n\n".format(
+                    result_obj.component, result_obj.errors
+                )
         return errs
 
     def perform_count(self) -> dict:
@@ -477,21 +499,21 @@ class SearchQuery(models.Model):
     def augment_with_variables(self, matches: ResultSet) -> ResultSet:
         # register missing xpath lower-case() function for lxml
         ns = etree.FunctionNamespace(None)
-        ns['lower-case'] = lambda ctx, lst: [x.lower() for x in lst]
+        ns["lower-case"] = lambda ctx, lst: [x.lower() for x in lst]
 
         for m in matches:
             # stores all nodes (root and variables) on which we run xpaths
             # this is using the old notation from the original basex query
             nodes = dict()
-            nodes['$node'] = m.tree
+            nodes["$node"] = m.tree
 
             vars = []
             for var in self.variables:
-                if var['name'] in nodes:
+                if var["name"] in nodes:
                     continue
 
                 try:
-                    target_name, query = var['path'].split('/', 1)
+                    target_name, query = var["path"].split("/", 1)
                     target = nodes[target_name]
                     node = target.xpath(query)[0]
                 except KeyError:
@@ -499,39 +521,45 @@ class SearchQuery(models.Model):
                     continue
 
                 # save result for subsequent queries
-                nodes[var['name']] = deepcopy(node)
+                nodes[var["name"]] = deepcopy(node)
 
                 # transform result into a <var/> element
-                node.attrib['name'] = var['name']
-                node.tag = 'var'
+                node.attrib["name"] = var["name"]
+                node.tag = "var"
 
                 vars.append(etree.tostring(node).decode())
-            vars_str = ''.join(vars)
-            m.variables = f'<vars>{vars_str}</vars>'
+            vars_str = "".join(vars)
+            m.variables = f"<vars>{vars_str}</vars>"
         return matches
 
     def augment_with_context(self, matches: ResultSet) -> ResultSet:
         """Fetch preceding and following sentences for matches in the result set"""
-        strip_match = re.compile(r'\+match=\d+$')
+        strip_match = re.compile(r"\+match=\d+$")
         for match in matches:
-            sentid = strip_match.sub('', match._match.sentid)
+            sentid = strip_match.sub("", match._match.sentid)
 
             # TODO: there's probably a more efficient way to fetch everything in a single query
             # instead of one query per match
 
-            query = '''
-            let $tree := db:open("''' + match._match.database + '''")/treebank/alpino_ds[
-            @id="''' + sentid + '''"
+            query = (
+                '''
+            let $tree := db:open("'''
+                + match._match.database
+                + '''")/treebank/alpino_ds[
+            @id="'''
+                + sentid
+                + """"
             ]
             let $prevs := $tree/preceding-sibling::alpino_ds[1]/sentence
             let $nexts := $tree/following-sibling::alpino_ds[1]/sentence
             return
             <match>{data($prevs)}||{data($nexts)}</match>
-            '''
+            """
+            )
             result = basex.perform_query(query)
-            prevs, nexts = result.split('||')
-            prevs = prevs.replace('<match>', '')
-            nexts = nexts.replace('</match>', '')
+            prevs, nexts = result.split("||")
+            prevs = prevs.replace("<match>", "")
+            nexts = nexts.replace("</match>", "")
             match.add_context(prevs, nexts)
         return matches
 

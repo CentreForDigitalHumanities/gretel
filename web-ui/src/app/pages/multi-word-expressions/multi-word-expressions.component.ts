@@ -14,6 +14,12 @@ import { TreebankSelection } from '../../treebank';
 
 import { MweQuery, MweQuerySet } from '../../services/mwe.service';
 
+export function IsMweState(state: GlobalState): state is MweState {
+    // to make sure this has to be updated on a refactor
+    const property: keyof MweState = 'querySet';
+    return state.hasOwnProperty(property);
+}
+
 interface MweState extends GlobalState {
     canonicalForm: {text: string, id?:number};
     querySet: MweQuerySet;

@@ -81,6 +81,9 @@ export interface TreebankDetails {
 
 export interface ComponentGroup {
     key: string;
+    /**
+     * values are component IDs
+     */
     components: { [variant: string]: string };
     description?: string;
     sentenceCount: FuzzyNumber;

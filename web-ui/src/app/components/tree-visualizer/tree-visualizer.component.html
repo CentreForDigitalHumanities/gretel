@@ -10,7 +10,7 @@
                     <fa-icon [icon]="faCommentDots" aria-hidden="true"></fa-icon>
                     <span></span>
                 </div>
-                <button class="tv-show-fs" grtBalloonPosition="left" grtBalloon="Open the tree in full screen mode" type="button" *ngIf="fullScreenButton">
+                <button class="tv-show-fs" tooltipPosition="left" pTooltip="Open the tree in full screen mode" type="button" *ngIf="fullScreenButton">
                     <fa-icon [icon]="faArrowsAlt" aria-hidden="true"></fa-icon>
                     <span class="sr-only">Open in fullscreen</span>
                 </button>
@@ -21,7 +21,7 @@
 
             <aside class="tv-tooltip" style="display: none" aria-label="">
                 <ul></ul>
-                <button grtBalloonPosition="up" grtBalloon="Close this tooltip" type="button">
+                <button tooltipPosition="top" pTooltip="Close this tooltip" type="button">
                     <fa-icon [icon]="faTimes" aria-hidden="true"></fa-icon>
                     <span class="sr-only">Close</span>
                 </button>
@@ -43,11 +43,11 @@
                 </div>
                 <div class="level-item">
                     <nav class="tv-navigation-wrapper">
-                        <button class="tv-prev-tree" type="button" grtBalloonPosition="down" grtBalloon="Show previous tree">
+                        <button class="tv-prev-tree" type="button" tooltipPosition="bottom" pTooltip="Show previous tree">
                             <fa-icon [icon]="faChevronLeft" aria-hidden="true"></fa-icon>
                             <span class="sr-only">Previous tree</span>
                         </button>
-                        <button class="tv-next-tree" type="button" grtBalloonPosition="down" grtBalloon="Show next tree">
+                        <button class="tv-next-tree" type="button" tooltipPosition="bottom" pTooltip="Show next tree">
                             <fa-icon [icon]="faChevronRight" aria-hidden="true"></fa-icon>
                             <span class="sr-only">Next tree</span>
                         </button>
@@ -57,14 +57,14 @@
                     <div class="level-item">
                         <div class="field">
                             <p class="control">
-                                <a *ngIf="url;else downloadButton" class="button" [href]="url" target="_blank" grtBalloonPosition="down" grtBalloon="Show XML">
+                                <a *ngIf="url;else downloadButton" class="button" [href]="url" target="_blank" tooltipPosition="bottom" pTooltip="Show XML">
                                     <span class="icon is-large">
                                         <fa-icon [icon]="faFileCode" aria-hidden="true"></fa-icon>
                                     </span>
                                     <span>Show XML</span>
                                 </a>
                                 <ng-template #downloadButton>
-                                    <span class="button" (click)="downloadXml()" grtBalloonPosition="down" grtBalloon="Download XML" rel="button">
+                                    <span class="button" (click)="downloadXml()" tooltipPosition="bottom" pTooltip="Download XML" rel="button">
                                         <span class="icon is-large">
                                             <fa-icon [icon]="faFileCode" aria-hidden="true"></fa-icon>
                                         </span>
@@ -98,7 +98,7 @@
                     <div class="level-item">
                         <div class="field">
                             <p class="control">
-                                <button grtBalloonPosition="down-right" grtBalloon="Close fullscreen mode" type="button" class="tv-close-fs button is-danger">
+                                <button tooltipPosition="bottom" pTooltip="Close fullscreen mode" type="button" class="tv-close-fs button is-danger">
                                     <fa-icon [icon]="faTimes" aria-hidden="true"></fa-icon>
                                 </button>
                             </p>
@@ -111,7 +111,7 @@
             </div>
             <aside class="tv-tooltip" style="display: none" aria-label="">
                 <ul></ul>
-                <button grtBalloonPosition="up" grtBalloon="Close this tooltip" type="button">
+                <button tooltipPosition="top" pTooltip="Close this tooltip" type="button">
                     <fa-icon [icon]="faTimes" aria-hidden="true"></fa-icon>
                     <span class="sr-only">Close</span>
                 </button>

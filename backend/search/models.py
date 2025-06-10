@@ -63,20 +63,41 @@ class ComponentSearchResult(models.Model):
         settings.CACHING_DIR.mkdir(exist_ok=True, parents=True)
         return settings.CACHING_DIR / str(self.id)
 
-    def check_results(self) -> bool:
+    def check_cache(self) -> bool:
+        """Check if the cache file is readable and if its contents corresponds
+        to what the database knows about it. If not, the search will have to 
+        be repeated. If search is not yet completed, the cache size is not
+        tested."""
+        cache_path = self._get_cache_path()
         try:
-            self.get_results()
+            with cache_path.open():
+                pass
+        except OSError:
+            return False
+        # Cache file is readable, now check if size is correct
+        if self.search_completed is None:
             return True
-        except Exception:
-            logger.exception(
-                "Failed reading results of ComponentSearchQuery: %d", self.pk
-            )
-
-        return False
+        else:
+            actual_size = cache_path.stat().st_size
+            size_equal = actual_size == self.cache_size
+            if not size_equal:
+                logger.warning(
+                    f"Cache size for {self} is {actual_size} while it is supposed to be {self.cache_size}"
+                )
+            return size_equal
 
     def get_results(self) -> ResultSet:
-        """Return results as a dict"""
-        results = self._get_cache_path().read_text()
+        """Return results as a ResultSet (a list of ``Result`` objects)."""
+        cache_path = self._get_cache_path()
+        try:
+            results = cache_path.read_text()
+        except OSError:
+            # Cache file is not present or not readable. This may happen when
+            # results are fetched but searching has not yet started, or if
+            # the cache file was deleted. Go on and return an empty set -
+            # this is not problematic because an inconsistency between model
+            # and cache will be detected by the code that performs the search.
+            return []
         self.last_accessed = timezone.now()
         # This method may be called from multiple processes while the query is still
         # running. If we save the entire model, we will overwrite the progress
@@ -86,7 +107,7 @@ class ComponentSearchResult(models.Model):
         return parse_search_result(results, self.component.slug)
 
     def get_completed_part(self) -> Optional[int]:
-        if self.check_results():
+        if self.check_cache():
             return self.completed_part
         return None
 
@@ -410,11 +431,7 @@ class SearchQuery(models.Model):
 
         result_objs = list(result_objs_query)
         # append results that should be complete but can't be read
-        result_objs += [
-            r
-            for r in self.results.filter(search_completed__isnull=False)
-            if not r.check_results()
-        ]
+        result_objs += [r for r in self.results.filter(search_completed__isnull=False) if not r.check_cache()]
 
         # loop through the linked ComponentSearchResults.
         # for each component, we have to either run the query (perform_search)
@@ -425,7 +442,7 @@ class SearchQuery(models.Model):
             if result_obj.search_completed and not result_obj.errors:
                 # kinda roundabout way to make sure the results are readable before skipping it
                 # make sure the results are accessible, because reading the cache might fail
-                if result_obj.check_results():
+                if result_obj.check_cache():
                     # results are readable, skip the rest of the loop
                     continue
             try:

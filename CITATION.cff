@@ -1,0 +1,79 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: GrETEL
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - name: 'Research Software Lab, Centre for Digital Humanities, Utrecht University'
+    website: 'https://cdh.uu.nl/centre-for-digital-humanities/research-software-lab/'
+    city: Utrecht
+    country: NL
+  - name: 'Centre for Computational Linguistics, KU Leuven'
+    website: 'http://www.arts.kuleuven.be/ling/ccl'
+    country: BE
+    city: Leuven
+  - website: 'https://ivdnt.org/'
+    name: INT
+    country: NL
+    city: Leiden
+  - affiliation: 'Centre for Computational Linguistics, KU Leuven'
+    family-names: Augustinus
+    given-names: Liesbeth
+  - affiliation: 'INL; Centre for Computational Linguistics, KU Leuven'
+    family-names: Vandeghinste
+    given-names: Vincent
+  - affiliation: 'Centre for Computational Linguistics, KU Leuven'
+    family-names: Vanroy
+    given-names: Bram
+    orcid: 'https://orcid.org/0000-0002-5450-201X'
+  - given-names: Jan
+    family-names: Odijk
+    affiliation: 'Institute for Language Sciences, Utrecht University'
+    orcid: 'https://orcid.org/0000-0003-3331-1182'
+  - affiliation: 'Centre for Digital Humanities, Utrecht University'
+    family-names: Klis
+    name-particle: van der
+    given-names: Martijn
+    orcid: 'https://orcid.org/0000-0003-0008-9028'
+  - affiliation: 'Centre for Digital Humanities, Utrecht University'
+    family-names: Spoel
+    given-names: Sheean
+    orcid: 'https://orcid.org/0000-0002-6802-4135'
+  - affiliation: 'Centre for Digital Humanities, Utrecht University'
+    family-names: Foks
+    given-names: Gerson
+  - affiliation: Instituut voor de Nederlandse Taal
+    family-names: Mertens
+    given-names: Koen
+  - affiliation: 'Centre for Digital Humanities, Utrecht University'
+    family-names: Boheemen
+    given-names: Jelte
+    name-particle: van
+  - affiliation: 'Centre for Digital Humanities, Utrecht University'
+    family-names: Baarda
+    given-names: Tijmen
+    orcid: 'https://orcid.org/0000-0002-2577-4948'
+  - affiliation: 'Centre for Digital Humanities, Utrecht University'
+    family-names: Bonfil
+    given-names: Ben
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.7152769
+repository-code: 'https://github.com/CentreForDigitalHumanities/gretel'
+url: 'https://gretel.hum.uu.nl'
+abstract: >-
+  Search engine for the exploitation of syntactically
+  annotated corpora or treebanks
+keywords:
+  - corpus research
+  - natural language processing
+  - dutch
+  - syntax
+  - treebanks
+license: CC-BY-NC-SA-4.0
+version: 5.1.0
+date-released: '2025-06-11'

@@ -1,7 +1,11 @@
-# GrETEL5
+# GrETEL 5
 
 [![Actions Status](https://github.com/CentreForDigitalHumanities/gretel/workflows/Tests/badge.svg)](https://github.com/CentreForDigitalHumanities/gretel/actions)
 [![DOI](https://zenodo.org/badge/95562504.svg)](https://zenodo.org/badge/latestdoi/95562504)
+
+GrETEL stands for Greedy Extraction of Trees for Empirical Linguistics. It is a user-friendly search engine for the exploitation of syntactically annotated corpora or treebanks
+
+GrETEL is publicly available at [https://gretel5.hum.uu.nl](https://gretel5.hum.uu.nl)
 
 ## Before you start
 

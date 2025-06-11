@@ -12,6 +12,7 @@
         "build:nl": "ng build  --deploy-url='/static/' --configuration=production-nl",
         "i18n": "ng extract-i18n --output-path locale",
         "serve": "ng serve --proxy-config ../proxy.conf.json",
+        "serve:acc": "ng serve --proxy-config ../proxy.acc.conf.json",
         "serve:live": "ng serve --proxy-config ../proxy.live.conf.json",
         "serve:en": "ng serve --proxy-config ../proxy.conf.json --configuration=en",
         "serve:nl": "ng serve --proxy-config ../proxy.conf.json --configuration=nl",

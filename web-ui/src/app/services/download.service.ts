@@ -1,4 +1,5 @@
 import { Injectable, SecurityContext } from '@angular/core';
+import { $localize } from '@angular/localize/init';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { saveAs } from 'file-saver';
 import { Hit, SearchVariable } from './results.service';
@@ -81,7 +82,7 @@ ${this.variablesMetaText(variables)}`]));
                     for (const [variable, properties] of Object.entries(hit.variableValues)) {
                         for (const [property, value] of Object.entries(properties)) {
                             const key = `${variable}${KEY_SEPARATOR}${property}`;
-                            variableCells[variableColumnPositions[key]] = value;
+                            variableCells[variableColumnPositions[key]] = $localize`${value}`;
                         }
                     }
                 }

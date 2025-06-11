@@ -79,7 +79,7 @@ export class AnalysisService {
                 const combinedValues: string[] = [];
                 for (const nodeName of nodeNames) {
                     const node = result.variableValues[nodeName];
-                    combinedValues.push(node && node[attribute] || AnalysisService.placeholder);
+                    combinedValues.push($localize`${node && node[attribute] || AnalysisService.placeholder}`);
                 }
 
                 values[attribute] = this.joinValues(combinedValues);
@@ -99,7 +99,7 @@ export class AnalysisService {
         const availableAttrs: { [key: string]: true } = {};
         for (const hit of hits) {
             for (const nodeName of nodeNames) {
-                const values = Object.keys(hit.variableValues[nodeName]).filter(a => a !== 'name');
+                const values = Object.keys(hit.variableValues[nodeName] ?? {}).filter(a => a !== 'name');
                 for (const value of values) {
                     availableAttrs[value] = true;
                 }

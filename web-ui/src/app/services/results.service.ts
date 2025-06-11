@@ -424,7 +424,7 @@ export class ResultsService {
             const nextSentence = result.nexts;
             const nodeStarts = result.begins.split('-').map(x => parseInt(x, 10));
             const metaValues = this.mapMeta(await this.parseService.parseXml(`<metadata>${result.meta}</metadata>`));
-            const variableValues = this.mapVariables(await this.parseService.parseXml(result.variables));
+            const variableValues = this.mapVariables(await this.parseService.parseXml(result.variables), await this.parseService.parseXml(result.xml_sentences));
             const component = result.component;
             const database = result.database;
             return {
@@ -486,14 +486,25 @@ export class ResultsService {
                 }
             }[]
         }[]
+    }, treeXml: {
+        node: {
+            0: {
+                $: { [key: string]: string | number }
+            }
+        }
     }): Hit['variableValues'] {
+        const rootProps = {
+            // the properties of the top node aren't included
+            // in the variables
+            $node: treeXml?.node?.[0].$ || {}
+        };
         if (!data || !data.vars) {
-            return {};
+            return rootProps;
         }
         return data.vars[0].var.reduce((values, variable) => {
             values[variable.$.name] = variable.$;
             return values;
-        }, {} as Hit['variableValues']);
+        }, rootProps as Hit['variableValues']);
     }
 
     /**
@@ -640,7 +651,7 @@ export interface Hit {
     metaValues: { [key: string]: string };
     attributes: { [key: string]: string },
     /** Contains the properties of the node matching the variable */
-    variableValues: { [variableName: string]: { [propertyKey: string]: string } };
+    variableValues: { [variableName: string]: { [propertyKey: string]: string | number } };
 }
 
 export interface ResultCount {

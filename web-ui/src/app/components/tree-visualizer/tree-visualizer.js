@@ -184,9 +184,6 @@ var jQuery = require('jquery');
             tooltipFS = treeFS.next(".tv-tooltip");
             zoomOpts = FS.find(".tv-zoom-opts");
 
-            // TODO: https://github.com/UUDigitalHumanitieslab/gretel/issues/154
-            // zoomOpts.prev("a").attr('href', xml);
-
             screens.push(FS);
             trees.push(treeFS);
             tooltips.push(tooltipFS);

@@ -30,7 +30,7 @@ class MWEQuery(TypedDict):
 
 def generate_queries(sentence: str) -> List[MWEQuery]:
     """Generates a set of queries using the mwe-query package.
-    (https://github.com/UUDigitalHumanitieslab/mwe-query)
+    (https://github.com/CentreForDigitalHumanities/mwe-query)
 
     This happens on the basis of an alpino parse tree and results in three
     queries:

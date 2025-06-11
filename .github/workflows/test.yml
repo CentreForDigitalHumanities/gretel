@@ -8,7 +8,7 @@ on:
   push:
     branches:
       - 'develop'
-      - 'master'
+      - 'main'
       - 'feature/**'
       - 'bugfix/**'
       - 'hotfix/**'

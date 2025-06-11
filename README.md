@@ -1,6 +1,6 @@
 # GrETEL5
 
-[![Actions Status](https://github.com/UUDigitalHumanitieslab/gretel-django/workflows/Tests/badge.svg)](https://github.com/UUDigitalHumanitieslab/gretel-django/actions)
+[![Actions Status](https://github.com/CentreForDigitalHumanities/gretel/workflows/Tests/badge.svg)](https://github.com/CentreForDigitalHumanities/gretel/actions)
 [![DOI](https://zenodo.org/badge/95562504.svg)](https://zenodo.org/badge/latestdoi/95562504)
 
 ## Before you start
@@ -239,8 +239,9 @@ When searching for a more specific structure, this is unlikely to occur.
 
 ## Info
 
-- v4.2.0 August 2019: federated search, improved configuration and state management, download results with node properties and again [many more fixes](https://github.com/UUDigitalHumanitieslab/gretel/compare/v4.1.0...v4.2.0).
-- v4.1.0 February 2019: Fixed support for GrInded corpora, [many more fixes](https://github.com/UUDigitalHumanitieslab/gretel/compare/v4.0.2...v4.1.0), feature complete replacement of version 3.
+- v5.1.0 June 2025: full replacement of GrETEL 4
+- v4.2.0 August 2019: federated search, improved configuration and state management, download results with node properties and again [many more fixes](https://github.com/CentreForDigitalHumanities/gretel/compare/v4.1.0...v4.2.0).
+- v4.1.0 February 2019: Fixed support for GrInded corpora, [many more fixes](https://github.com/CentreForDigitalHumanities/gretel/compare/v4.0.2...v4.1.0), feature complete replacement of version 3.
 - v4.0.2 October 2018: GrETEL 4 release with many bugfixes and improvements.
 - v4.0.0 June 2018: First GrETEL 4 release with new interface.
 - v3.9.99 November 2017: GrETEL 4 currently under development!
@@ -249,7 +250,7 @@ When searching for a more specific structure, this is unlikely to occur.
 
 ### Branches
 
-- `master`: official version of GrETEL 5, available at <https://gretel5.hum.uu.nl/gretel/>
+- `main`: official version of GrETEL 5, available at <https://gretel5.hum.uu.nl/gretel/>
 - `develop`: development version  
 - `gretel2.0`: official version of GrETEL 2.0, available at <https://gretel.ccl.kuleuven.be/gretel-2.0>
 

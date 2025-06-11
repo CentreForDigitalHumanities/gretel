@@ -1,10 +1,10 @@
 {
     "name": "gretel5",
-    "version": "5.0.0",
+    "version": "5.1.0",
     "description": "GrETEL5",
     "author": "Research Software Lab, Centre for Digital Humanities, Utrecht University",
     "license": "BSD-3-Clause",
-    "repository": "github:UUDigitalHumanitieslab/gretel-django",
+    "repository": "github:CentreForDigitalHumanities/gretel",
     "private": true,
     "scripts": {
         "front": "cd web-ui && ",

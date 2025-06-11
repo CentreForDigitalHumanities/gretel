@@ -106,7 +106,8 @@ $scrollbar-width: 0.75em;
     }
 }
 
-.highlight {
+.highlight,
+.has-highlight-background strong {
     background: $highlight;
     color: $highlight-text;
 }

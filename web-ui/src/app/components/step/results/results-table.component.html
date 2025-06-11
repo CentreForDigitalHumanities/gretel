@@ -5,7 +5,8 @@
                 <div class="field">
                     <p class="control">
                         <a class="button" role="button" (click)="hideFiltersColumn = !hideFiltersColumn"
-                            [ngClass]="{'is-secondary': hideFiltersColumn, 'has-badge-rounded': activeFilterCount}" [attr.data-badge]="activeFilterCount ? activeFilterCount : undefined"
+                            [ngClass]="{'is-secondary': hideFiltersColumn, 'has-badge-rounded': activeFilterCount}"
+                            [attr.data-badge]="activeFilterCount ? activeFilterCount : undefined"
                             pTooltip="Toggle filters">
                             <span class="icon">
                                 <fa-icon [icon]="faBars" aria-hidden="true"></fa-icon>
@@ -16,7 +17,8 @@
             </div>
             <div class="level-item">
                 <h1 class="title" [ngClass]="{'is-loading': loading}" grtSubtitle>
-                    Results: {{filteredResults.length - hiddenCount | transitionNumbers}}<ng-container *ngIf="hiddenCount > 0"> ({{hiddenCount | transitionNumbers}}
+                    Results: {{filteredResults.length - hiddenCount | transitionNumbers}}<ng-container
+                        *ngIf="hiddenCount > 0"> ({{hiddenCount | transitionNumbers}}
                         hidden)
                     </ng-container>
                 </h1>
@@ -42,11 +44,12 @@
             <div class="level-item">
                 <div class="field has-addons">
                     <p class="control">
-                        <grt-download-results [loading]="loadingDownload" (downloadResults)="downloadResults.next($event)"></grt-download-results>
+                        <grt-download-results [loading]="loadingDownload"
+                            (downloadResults)="downloadResults.next($event)"></grt-download-results>
                     </p>
                     <p class="control" *ngIf="!loading">
-                        <a class="button" role="button" (click)="downloadFilelist.next()"
-                            tooltipPosition="bottom" pTooltip="Download the names of the files in a filelist (.fl)">
+                        <a class="button" role="button" (click)="downloadFilelist.next()" tooltipPosition="bottom"
+                            pTooltip="Download the names of the files in a filelist (.fl)">
                             <span class="icon is-large">
                                 <fa-icon [icon]="faFileAlt" aria-hidden="true"></fa-icon>
                             </span>
@@ -66,7 +69,15 @@
                 </div>
             </div>
             <div class="level-item">
-                <div class="field">
+                <div class="field has-addons">
+                    <p class="control" (click)="hasHighlightBackground=!hasHighlightBackground">
+                        <a class="button" [ngClass]="{'is-warning': hasHighlightBackground}" role="button"
+                            tooltipPosition="bottom" pTooltip="Toggle showing a highlight background for hits.">
+                            <span class="icon is-large">
+                                <fa-icon [icon]="faHighlighter" aria-hidden="true"></fa-icon>
+                            </span>
+                        </a>
+                    </p>
                     <p class="control" (click)="toggleContext.next()">
                         <a class="button is-warning" role="button" tooltipPosition="bottom"
                             pTooltip="Click to show the sentences directly before and after the hits."
@@ -116,7 +127,7 @@
             </a>
         </div>
     </div>
-    <div class="column">
+    <div class="column" [ngClass]="{'has-highlight-background': hasHighlightBackground}">
         <p-table *ngIf="filteredResults.length > hiddenCount else warning" [columns]="columns" [value]="filteredResults"
             [resizableColumns]="true" responsiveLayout="stack" styleClass="bulma">
             <ng-template pTemplate="header" let-columns>
@@ -137,14 +148,17 @@
                                 <a *ngIf="rowData[col.field]; else fileIdButton"
                                     (click)="showTree.emit(rowData)">{{rowData[col.field].split('/').pop()}}</a>
                                 <ng-template #fileIdButton>
-                                    <button type="button" class="button" (click)="showTree.emit(rowData)">Show tree</button>
+                                    <button type="button" class="button" (click)="showTree.emit(rowData)">Show
+                                        tree</button>
                                 </ng-template>
                             </ng-container>
 
                             <ng-container *ngSwitchCase="'highlightedSentence'">
-                                <span *ngIf="retrieveContext" class="content is-small">{{rowData['previousSentence']}} </span>
+                                <span *ngIf="retrieveContext" class="content is-small">{{rowData['previousSentence']}}
+                                </span>
                                 <span [innerHTML]="rowData['highlightedSentence']"></span>
-                                <span *ngIf="retrieveContext" class="content is-small"> {{rowData['nextSentence']}}</span>
+                                <span *ngIf="retrieveContext" class="content is-small">
+                                    {{rowData['nextSentence']}}</span>
                             </ng-container>
 
                             <span [innerHTML]="rowData[col.field]" *ngSwitchDefault></span>

@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, NgZone } from '@angular/core';
-import { faBars, faChevronLeft, faChevronRight, faCommentDots, faCommentSlash, faFileAlt, faPrint } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faChevronLeft, faChevronRight, faCommentDots, faCommentSlash, faFileAlt, faHighlighter, faPrint } from '@fortawesome/free-solid-svg-icons';
 import { Subscription, Observable, combineLatest } from 'rxjs';
 import {
     debounceTime,
@@ -34,6 +34,7 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
     faCommentDots = faCommentDots;
     faCommentSlash = faCommentSlash;
     faFileAlt = faFileAlt;
+    faHighlighter = faHighlighter;
     faPrint = faPrint;
 
     @Input()
@@ -87,6 +88,7 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
      */
     public hideFiltersColumn = false;
     public hiddenCount = 0;
+    public hasHighlightBackground = false;
     private subscriptions: Subscription[];
 
     public columns = [
@@ -149,7 +151,7 @@ export class ResultsTableComponent implements OnInit, OnDestroy {
         const result: Partial<ObservableStateProperties> = {};
 
         for (const key of keys) {
-            result[`${key}$`] = state$.pipe(
+            result[<keyof ObservableStateProperties>`${key}$`] = state$.pipe(
                 map(state => state[key]),
                 debounceTime(DebounceTime),
                 distinctUntilChanged()) as any;

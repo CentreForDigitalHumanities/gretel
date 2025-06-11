@@ -200,7 +200,7 @@ export class AnalysisComponent extends StepDirective<GlobalState> implements OnI
             distinctUntilChanged()).subscribe(async selectedTreebanks => {
                 const metadata: TreebankMetadata[][] = await Promise.all(
                     selectedTreebanks.corpora.map(async corpus => (await corpus.corpus.treebank).details.metadata()));
-                this.metadata = metadata.flatMap(x => x);
+                this.metadata = metadata.filter(x => x !== undefined).flatMap(x => x);
             });
 
         const results$ = this.state$.pipe(

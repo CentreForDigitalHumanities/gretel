@@ -1,9 +1,13 @@
+from typing import Optional, Tuple
 from rest_framework.response import Response
 from rest_framework.decorators import (
-    api_view, parser_classes, renderer_classes, authentication_classes
+    api_view,
+    parser_classes,
+    renderer_classes,
+    authentication_classes,
 )
 from rest_framework.parsers import JSONParser
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
+from rest_framework.renderers import BaseRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.authentication import BasicAuthentication
 from rest_framework import status
 
@@ -13,29 +17,54 @@ from alpino_query import AlpinoQuery
 from services.alpino import alpino, AlpinoError
 
 
-@api_view(['POST'])
+class XmlSentenceRenderer(BaseRenderer):
+    media_type = "text/xml"
+    format = "xml"
+
+    def render(self, data, accepted_media_type=None, renderer_context=None):
+        return data["parsed_sentence"]
+
+
+@api_view(["POST"])
 @authentication_classes([BasicAuthentication])
 @renderer_classes([JSONRenderer, BrowsableAPIRenderer])
 @parser_classes([JSONParser])
-def parse_view(request):
+def parse_post(request):
     data = request.data
     try:
-        sentence = data['sentence']
+        sentence = data["sentence"]
     except KeyError as err:
         return Response(
-            {'error': '{} is missing'.format(err)},
-            status=status.HTTP_400_BAD_REQUEST
+            {"error": "{} is missing".format(err)}, status=status.HTTP_400_BAD_REQUEST
         )
+    
+    parsed_sentence, err = parse_sentence(sentence)
+    if parsed_sentence is None:
+        return Response(
+            {"error": "Parsing error: {}".format(err)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+    return Response({"parsed_sentence": parsed_sentence})
 
+
+@api_view(["GET"])
+@renderer_classes([XmlSentenceRenderer, JSONRenderer, BrowsableAPIRenderer])
+def parse_get(request, sentence):
+    parsed_sentence, err = parse_sentence(sentence)
+    if parsed_sentence is None:
+        return Response(
+            {"error": "Parsing error: {}".format(err)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+    return Response({"parsed_sentence": parsed_sentence})
+
+
+def parse_sentence(sentence: str) -> Tuple[Optional[str], Optional[AlpinoError]]:
     try:
         alpino.initialize()
-        parsed_sentence = alpino.client.parse_line(sentence, 'zin')
+        return alpino.client.parse_line(sentence, "zin"), None
     except AlpinoError as err:
-        return Response(
-            {'error': 'Parsing error: {}'.format(err)},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
-    return Response({'parsed_sentence': parsed_sentence})
+        return None, err
 
 
 @api_view(['POST'])

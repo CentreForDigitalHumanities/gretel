@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 from django.views.generic.base import RedirectView
 from django.shortcuts import redirect
+import urllib.parse
 
 from .index import index
 from .proxy_frontend import proxy_frontend
@@ -14,7 +15,7 @@ else:
 
 
 def redirect_sentence(request, sentence):
-    response = redirect("/parse/parse-sentence/" + sentence)
+    response = redirect("/parse/parse-sentence/" + urllib.parse.quote(sentence) + "?format=xml", permanent=True)
     return response
 
 

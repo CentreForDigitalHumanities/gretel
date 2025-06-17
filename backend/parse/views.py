@@ -8,6 +8,7 @@ from rest_framework.decorators import (
 )
 from rest_framework.parsers import JSONParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer, BrowsableAPIRenderer
+from rest_framework.request import Request
 from rest_framework.authentication import BasicAuthentication
 from rest_framework import status
 
@@ -29,7 +30,7 @@ class XmlSentenceRenderer(BaseRenderer):
 @authentication_classes([BasicAuthentication])
 @renderer_classes([JSONRenderer, BrowsableAPIRenderer])
 @parser_classes([JSONParser])
-def parse_post(request):
+def parse_post(request: Request):
     data = request.data
     try:
         sentence = data["sentence"]
@@ -49,7 +50,15 @@ def parse_post(request):
 
 @api_view(["GET"])
 @renderer_classes([XmlSentenceRenderer, JSONRenderer, BrowsableAPIRenderer])
-def parse_get(request, sentence):
+def parse_get(request: Request, sentence: str):
+    # separated by + instead of spaces (e.g. using quote_plus)
+    # this was done by alpino-query < 2.1.10
+    # ideally this should be done using unquote_plus
+    # however the sentence and path_info we receive here
+    # already contain the decoded plusses, meaning we cannot
+    # make this distinction here anymore
+    if '+' in sentence and ' ' not in sentence:
+        sentence = sentence.replace('+', ' ')
     parsed_sentence, err = parse_sentence(sentence)
     if parsed_sentence is None:
         return Response(
@@ -71,7 +80,7 @@ def parse_sentence(sentence: str) -> Tuple[Optional[str], Optional[AlpinoError]]
 @authentication_classes([BasicAuthentication])
 @renderer_classes([JSONRenderer, BrowsableAPIRenderer])
 @parser_classes([JSONParser])
-def generate_xpath_view(request):
+def generate_xpath_view(request: Request):
     data = request.data
     try:
         # TODO perhaps use a schema for this...

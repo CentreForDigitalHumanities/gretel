@@ -1,4 +1,6 @@
 from typing import Optional, Tuple
+from urllib.parse import unquote, unquote_plus
+import re
 from rest_framework.response import Response
 from rest_framework.decorators import (
     api_view,
@@ -50,15 +52,22 @@ def parse_post(request: Request):
 
 @api_view(["GET"])
 @renderer_classes([XmlSentenceRenderer, JSONRenderer, BrowsableAPIRenderer])
-def parse_get(request: Request, sentence: str):
+def parse_get(request: Request):
+    # e.g. /parse/parse-sentence/<sentence>
+    # This is done because
+    # 1. if the sentence is separated using + (using quote_plus)
+    #    the + and %2B are both replaced with + which is useless
+    # 2. if a slash is in the sentence this is escaped by %2F
+    #    however the routing replaces this slash with an actual
+    #    slash and then tries to find this route; which doesn't
+    #    exist so the user would get a 404
+    full_path = request.parser_context['request'].get_full_path()
+    short_path = re.sub(r'^.*?parse-sentence/', '', full_path)
     # separated by + instead of spaces (e.g. using quote_plus)
     # this was done by alpino-query < 2.1.10
-    # ideally this should be done using unquote_plus
-    # however the sentence and path_info we receive here
-    # already contain the decoded plusses, meaning we cannot
-    # make this distinction here anymore
-    if '+' in sentence and ' ' not in sentence:
-        sentence = sentence.replace('+', ' ')
+    # use a plain unquote if separated by spaces: we assume
+    # any + is intentional and should be included in the sentence
+    sentence = unquote(short_path) if '%20' in short_path else unquote_plus(short_path)
     parsed_sentence, err = parse_sentence(sentence)
     if parsed_sentence is None:
         return Response(

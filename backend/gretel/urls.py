@@ -15,7 +15,7 @@ else:
 
 
 def redirect_sentence(request, sentence):
-    response = redirect("/parse/parse-sentence/" + urllib.parse.quote(sentence) + "?format=xml", permanent=True)
+    response = redirect("/parse/parse-sentence?s=" + urllib.parse.quote(sentence) + "&format=xml", permanent=True)
     return response
 
 

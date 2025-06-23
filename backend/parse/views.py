@@ -13,7 +13,6 @@ from rest_framework.renderers import BaseRenderer, JSONRenderer, BrowsableAPIRen
 from rest_framework.request import Request
 from rest_framework.authentication import BasicAuthentication
 from rest_framework import status
-from functools import lru_cache
 
 from lxml import etree
 from alpino_query import AlpinoQuery
@@ -41,7 +40,7 @@ def parse_post(request: Request):
         return Response(
             {"error": "{} is missing".format(err)}, status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     parsed_sentence, err = parse_sentence(sentence)
     if parsed_sentence is None:
         return Response(
@@ -56,6 +55,22 @@ def parse_post(request: Request):
 def parse_get(request: Request, *_):
     # *_ is needed because of the group in the path
     # it will be passed to this method, but we don't use the value
+    full_path = request.parser_context["request"].get_full_path()
+    # separated by + instead of spaces (e.g. using quote_plus)
+    # this was done by alpino-query < 2.1.10
+    # use a plain unquote if separated by spaces: we assume
+    # any + is intentional and should be included in the sentence
+    sentence = sentence_from_path(full_path)
+    parsed_sentence, err = parse_sentence(sentence)
+    if parsed_sentence is None:
+        return Response(
+            {"error": "Parsing error: {}".format(err)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+    return Response({"parsed_sentence": parsed_sentence})
+
+
+def sentence_from_path(full_path: str) -> str:
     # e.g. /parse/parse-sentence?s=<sentence>
     #   This is an option when more lenience is required for weird characters
     #   such as only parsing a period
@@ -70,24 +85,15 @@ def parse_get(request: Request, *_):
     #    slash and then tries to find this route; which doesn't
     #    exist so the user would get a 404
     #    also see: https://github.com/django/asgiref/issues/51
-    pattern = r'^.*?parse-sentence(\?s=|/)'
-    full_path = request.parser_context['request'].get_full_path()
-    short_path = re.sub(pattern, '', full_path)
+    pattern = r"(^.*?parse-sentence/?|[?&]s=|[?&]format=[^?&]+)"
+    short_path = re.sub(pattern, "", full_path)
     # separated by + instead of spaces (e.g. using quote_plus)
     # this was done by alpino-query < 2.1.10
     # use a plain unquote if separated by spaces: we assume
     # any + is intentional and should be included in the sentence
-    sentence = unquote(short_path) if '%20' in short_path else unquote_plus(short_path)
-    parsed_sentence, err = parse_sentence(sentence)
-    if parsed_sentence is None:
-        return Response(
-            {"error": "Parsing error: {}".format(err)},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-    return Response({"parsed_sentence": parsed_sentence})
+    return unquote(short_path) if "%20" in short_path else unquote_plus(short_path)
 
-# cache up to about 100 MB of sentences
-@lru_cache(maxsize=500000)
+
 def parse_sentence(sentence: str) -> Tuple[Optional[str], Optional[AlpinoError]]:
     try:
         alpino.initialize()

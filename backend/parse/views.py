@@ -13,6 +13,7 @@ from rest_framework.renderers import BaseRenderer, JSONRenderer, BrowsableAPIRen
 from rest_framework.request import Request
 from rest_framework.authentication import BasicAuthentication
 from rest_framework import status
+from functools import lru_cache
 
 from lxml import etree
 from alpino_query import AlpinoQuery
@@ -52,7 +53,14 @@ def parse_post(request: Request):
 
 @api_view(["GET"])
 @renderer_classes([XmlSentenceRenderer, JSONRenderer, BrowsableAPIRenderer])
-def parse_get(request: Request):
+def parse_get(request: Request, *_):
+    # *_ is needed because of the group in the path
+    # it will be passed to this method, but we don't use the value
+    # e.g. /parse/parse-sentence?s=<sentence>
+    #   This is an option when more lenience is required for weird characters
+    #   such as only parsing a period
+    #   Warning: adding a slash at the end of the route
+    #   will not work, because this will match the POST route
     # e.g. /parse/parse-sentence/<sentence>
     # This is done because
     # 1. if the sentence is separated using + (using quote_plus)
@@ -61,8 +69,10 @@ def parse_get(request: Request):
     #    however the routing replaces this slash with an actual
     #    slash and then tries to find this route; which doesn't
     #    exist so the user would get a 404
+    #    also see: https://github.com/django/asgiref/issues/51
+    pattern = r'^.*?parse-sentence(\?s=|/)'
     full_path = request.parser_context['request'].get_full_path()
-    short_path = re.sub(r'^.*?parse-sentence/', '', full_path)
+    short_path = re.sub(pattern, '', full_path)
     # separated by + instead of spaces (e.g. using quote_plus)
     # this was done by alpino-query < 2.1.10
     # use a plain unquote if separated by spaces: we assume
@@ -76,7 +86,8 @@ def parse_get(request: Request):
         )
     return Response({"parsed_sentence": parsed_sentence})
 
-
+# cache up to about 100 MB of sentences
+@lru_cache(maxsize=500000)
 def parse_sentence(sentence: str) -> Tuple[Optional[str], Optional[AlpinoError]]:
     try:
         alpino.initialize()

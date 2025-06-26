@@ -9,7 +9,7 @@ fi
 export PORT=7001
 export TIMEOUT=600000
 export MEMLIMIT=1500M
-export TMPDIR=/tmp
+export TMPDIR=${TMPDIR:=/tmp}
 export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
 PROLOGMAXSIZE=${MEMLIMIT} ${ALPINO_HOME}/bin/Alpino -notk -veryfast user_max=${TIMEOUT}\

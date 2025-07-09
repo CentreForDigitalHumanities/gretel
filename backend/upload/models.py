@@ -58,7 +58,7 @@ class TreebankUpload(models.Model):
     processed = models.DateTimeField(null=True, blank=True)
 
     def get_metadata(self):
-        '''Return a dict containing the discovered metadata of this treebank,
+        '''Return a list containing the discovered metadata of this treebank,
         available after processing has finished. Format is the same as in the
         Treebank model.'''
         # This method uses the private _metadata attribute but does some

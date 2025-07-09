@@ -27,7 +27,7 @@ class Treebank(models.Model):
     )
     variants = models.JSONField(blank=True, default=list)
     groups = models.JSONField(blank=True, default=dict)
-    metadata = models.JSONField(blank=True, default=dict)
+    metadata = models.JSONField(blank=True, default=list)
 
     def __str__(self):
         return "{}".format(self.slug)

@@ -3,6 +3,7 @@ import { HttpClient } from "@angular/common/http";
 import { ParserService } from 'lassy-xpath';
 import { ConfigurationService } from "./configuration.service";
 import { TokenAttributes, FilterValue, DefaultTokenAttributes } from '../models/matrix';
+import { firstValueFrom } from 'rxjs';
 
 type ApiParseResult = {
     parsed_sentence?: string,
@@ -18,7 +19,7 @@ export class AlpinoService {
     }
 
     async generateXPath(xml: string, tokens: string[], attributes: TokenAttributes[], ignoreTopNode: boolean, respectOrder: boolean) {
-        const result = await this.http.post<{
+        const result = await firstValueFrom(this.http.post<{
             xpath: string,
             subTree: string
         }>(await this.generateXPathUrl, {
@@ -27,7 +28,7 @@ export class AlpinoService {
             attributes: this.attributesToStrings(attributes),
             ignoreTopNode,
             respectOrder
-        }).toPromise();
+        }));
 
         return {
             xpath: this.parserService.format(result.xpath),
@@ -40,10 +41,10 @@ export class AlpinoService {
     }
 
     async parseSentence(sentence: string) {
-        const response = await this.http.post<ApiParseResult>(
+        const response = await firstValueFrom(this.http.post<ApiParseResult>(
             await this.configurationService.getDjangoUrl('parse/parse-sentence/'),
             { sentence: sentence }
-        ).toPromise();
+        ));
         return response.parsed_sentence;
     }
 

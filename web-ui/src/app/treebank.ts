@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+
 export class FuzzyNumber {
     public value = 0;
     public unknown = false;

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { ConfigurationService } from './configuration.service';
 import { NotificationService } from './notification.service';
 
@@ -66,7 +66,7 @@ export class UserService {
     private async retrieveCurrent(): Promise<boolean> {
         const currentUrl = await this.configurationService.getUploadApiUrl('user');
 
-        let response: UserResponse = await this.http.get(currentUrl, { withCredentials: true }).toPromise()
+        let response: UserResponse = await firstValueFrom(this.http.get(currentUrl, { withCredentials: true }))
             .catch((error: HttpErrorResponse) => null);
 
         if (response) {
@@ -91,10 +91,10 @@ export class UserService {
         formData.append('username', username);
         formData.append('password', password);
 
-        const response = <UserResponse>await this.http.post(
+        const response = <UserResponse>await firstValueFrom(this.http.post(
             loginUrl,
             formData,
-            { withCredentials: true }).toPromise();
+            { withCredentials: true }));
 
         var success = this.setUser(response);
         if (success) {
@@ -113,7 +113,7 @@ export class UserService {
         const logoutUrl = await this.configurationService.getUploadApiUrl('user/logout');
 
         try {
-            await this.http.post(logoutUrl, null, { withCredentials: true }).toPromise();
+            await firstValueFrom(this.http.post(logoutUrl, null, { withCredentials: true }));
             this.setUser(undefined);
             return true;
         }

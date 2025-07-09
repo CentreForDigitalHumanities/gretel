@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 
 import { ConfigurationService } from './configuration.service';
 import { ParseService } from './parse.service';
@@ -201,7 +201,7 @@ export class ResultsService {
         variables = this.defaultVariables,
         behaviour: SearchBehaviour,
     ): Promise<SearchResults | false> {
-        const results = await this.http.post<ApiSearchResult | false>(
+        const results = await firstValueFrom(this.http.post<ApiSearchResult | false>(
             await this.configurationService.getDjangoUrl('search/search/'), {
             xpath: this.createFilteredQuery(xpath, metadataFilters),
             retrieveContext,
@@ -212,7 +212,7 @@ export class ResultsService {
             is_analysis: isAnalysis,
             variables: this.formatVariables(variables),
             behaviour,
-        }, httpOptions).toPromise();
+        }, httpOptions));
         if (results) {
             return this.mapResults(results);
         }
@@ -242,10 +242,10 @@ export class ResultsService {
             database: database,
             sentence_id: sentenceId
         }
-        const response = await this.http.post<ApiTreeResult>(
+        const response = await firstValueFrom(this.http.post<ApiTreeResult>(
             url2,
             data
-        ).toPromise();
+        ));
         return this.highlightSentenceNodes(response.tree, nodeIds);
     }
 
@@ -266,22 +266,22 @@ export class ResultsService {
 
     /** On error the returned promise rejects with @type {HttpErrorResponse} */
     async metadataCounts(xpath: string, provider: string, corpus: string, components: string[], metadataFilters: FilterValue[] = []) {
-        return await this.http.post<MetadataValueCounts>(
+        return await firstValueFrom(this.http.post<MetadataValueCounts>(
             await this.configurationService.getDjangoUrl('search/metadata-count/'), {
             xpath: this.createFilteredQuery(xpath, metadataFilters),
             treebank: corpus,
             components,
-        }, httpOptions).toPromise();
+        }, httpOptions));
     }
 
     /** On error the returned promise rejects with @type {HttpErrorResponse} */
     async treebankCounts(xpath: string, provider: string, corpus: string, components: string[], metadataFilters: FilterValue[] = []) {
-        const results = await this.http.post<{ [componentId: string]: string }>(
+        const results = await firstValueFrom(this.http.post<{ [componentId: string]: string }>(
             await this.configurationService.getApiUrl(provider, 'treebank_counts'), {
             xpath: this.createFilteredQuery(xpath, metadataFilters),
             corpus,
             components,
-        }, httpOptions).toPromise();
+        }, httpOptions));
 
         return Object.keys(results).map(componentId => {
             return {

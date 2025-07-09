@@ -1,8 +1,8 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import { BehaviorSubject, Observable, ReplaySubject, merge, EMPTY } from 'rxjs';
-import { flatMap, mergeMap, catchError, shareReplay, delay, map, first } from 'rxjs/operators';
+import { BehaviorSubject, Observable, ReplaySubject, merge, EMPTY, firstValueFrom } from 'rxjs';
+import { flatMap, mergeMap, catchError, shareReplay, delay, map, first, filter } from 'rxjs/operators';
 
 import {
     ComponentGroup,
@@ -311,9 +311,15 @@ export class TreebankService {
             return treebanks && treebanks[corpus];
         };
 
-        return get(this.treebanks.value) || this.getTreebanks() && this.treebanks.pipe(
-            map(treebanks => get(treebanks)),
-            first(treebank => !!treebank)).toPromise();
+        const treebank = get(this.treebanks.value);
+        if (treebank) {
+            return treebank;
+        }
+
+        return firstValueFrom(
+            this.getTreebanks() && this.treebanks.pipe(
+                map(treebanks => get(treebanks)),
+                first(treebank => !!treebank)));
     }
 
     /**
@@ -352,7 +358,7 @@ export class TreebankService {
         });
 
         // toPromise() resolves only when the underlying stream completes.
-        await allTreebanks$.toPromise();
+        await firstValueFrom(allTreebanks$);
     }
 
     private getUploadedTreebanks(): Observable<Treebank> {
@@ -416,14 +422,14 @@ export class TreebankService {
             makeUploadedTreebank(provider, bank),
             {
                 metadata: async () => {
-                    const uploadedMetadata = await this.configurationService.getUploadApiUrl('treebank/metadata/' + bank.title)
-                        .then(url => this.http.get<UploadedTreebankMetadataResponse[]>(url, { withCredentials: true }).toPromise());
+                    const url = await this.configurationService.getUploadApiUrl('treebank/metadata/' + bank.title);
+                    const uploadedMetadata = await firstValueFrom(this.http.get<UploadedTreebankMetadataResponse[]>(url, { withCredentials: true }));
                     return uploadedMetadata.map(makeUploadedMetadata);
                 },
                 componentGroups: async () => undefined,
                 components: async () => {
-                    const uploadedComponents = await this.configurationService.getUploadApiUrl('treebank/show/' + bank.title)
-                        .then(url => this.http.get<UploadedTreebankShowResponse[]>(url, { withCredentials: true }).toPromise());
+                    const url = await this.configurationService.getUploadApiUrl('treebank/show/' + bank.title);
+                    const uploadedComponents = await firstValueFrom(this.http.get<UploadedTreebankShowResponse[]>(url, { withCredentials: true }));
 
                     const components: TreebankComponent[] = uploadedComponents.map(makeUploadedComponent);
                     return components.reduce<TreebankComponents>((cs, c) => { cs[c.id] = c; return cs; }, {});
@@ -433,8 +439,8 @@ export class TreebankService {
     }
 
     private async getDjangoComponents(bank: DjangoTreebankResponse) {
-        const djangoComponents = await this.configurationService.getDjangoUrl('treebanks/treebank/' + bank.slug + '/components/')
-            .then(url => this.http.get<DjangoComponentsForTreebankResponse[]>(url, {}).toPromise());
+        const url = await this.configurationService.getDjangoUrl('treebanks/treebank/' + bank.slug + '/components/');
+        const djangoComponents = await firstValueFrom(this.http.get<DjangoComponentsForTreebankResponse[]>(url, {}));
 
         const components: TreebankComponent[] = djangoComponents.map(makeDjangoComponent);
         return components.reduce<TreebankComponents>((cs, c) => { cs[c.id] = c; return cs; }, {});
@@ -446,9 +452,9 @@ export class TreebankService {
             makeDjangoTreebank(bank),
             {
                 metadata: async () => {
-                    const djangoMetadata = await this.configurationService.getDjangoUrl('treebanks/treebank/' + bank.slug + '/metadata/')
-                        .then(url => this.http.get<{ 'metadata': DjangoTreebankMetadataResponse[] }>(url, {}).toPromise());
-                    return djangoMetadata.metadata.map(makeDjangoMetadata);
+                    const url = await this.configurationService.getDjangoUrl('treebanks/treebank/' + bank.slug + '/metadata/');
+                    const { metadata } = await firstValueFrom(this.http.get<{ 'metadata': DjangoTreebankMetadataResponse[] }>(url, {}));
+                    return metadata?.map(makeDjangoMetadata);
                 },
                 componentGroups: async () => {
                     // are the components grouped?

@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { firstValueFrom, Observable } from 'rxjs';
 
 @Injectable()
 export class ConfigurationService {
     private config: Promise<Config>;
 
     constructor(private httpClient: HttpClient) {
-        this.config = this.loadConfig();
+        this.config = firstValueFrom(this.loadConfig());
     }
 
     async getApiUrl(provider: string, path: string, parts: string[] = [], queryString: { [key: string]: string } = {}): Promise<string> {
@@ -26,7 +27,7 @@ export class ConfigurationService {
     }
 
     async getUploadApiUrl(path: string) {
-        const uploadUrl = (await this.config).uploadUrl ;
+        const uploadUrl = (await this.config).uploadUrl;
         return uploadUrl ? uploadUrl + path : undefined;
     }
 
@@ -46,8 +47,8 @@ export class ConfigurationService {
         return Object.keys((await this.config).providers);
     }
 
-    private async loadConfig() {
-        return this.httpClient.get<Config>(`assets/config/config.${environment.name}.json`).toPromise();
+    private loadConfig(): Observable<Config> {
+        return this.httpClient.get<Config>(`assets/config/config.${environment.name}.json`);
     }
 }
 

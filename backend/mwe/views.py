@@ -46,7 +46,6 @@ def generate_queries(sentence: str) -> List[MWEQuery]:
 
     # TODO: we could maybe replace the whole rank idea with an is_superset boolean
     generated = generatequeries(sentence)
-    assert len(generated) == 3
     return [
         MWEQuery(xpath=generated[0], description="Multi-word expression query", rank=1),
         MWEQuery(xpath=generated[1], description="Near-miss query", rank=2),

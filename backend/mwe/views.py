@@ -50,6 +50,7 @@ def generate_queries(sentence: str) -> List[MWEQuery]:
         MWEQuery(xpath=generated[0], description="Multi-word expression query", rank=1),
         MWEQuery(xpath=generated[1], description="Near-miss query", rank=2),
         MWEQuery(xpath=generated[2], description="Major lemma query", rank=3),
+        MWEQuery(xpath=generated[3], description="Related word query", rank=4)
     ]
 
 

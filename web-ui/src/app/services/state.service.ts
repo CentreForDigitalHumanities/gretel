@@ -152,7 +152,6 @@ class SharedInstance<T extends GlobalState> {
     private async showWarning(stepNumber: number) {
         const targetStep = this.steps[stepNumber];
         const currentStep = await this.currentStepDirectiveAsync();
-        console.log(currentStep, targetStep);
         if (currentStep.stepType === targetStep.type) {
             this.warning$.next(currentStep.getWarningMessage() || false);
         }

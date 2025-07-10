@@ -67,7 +67,6 @@ export abstract class MultiStepPageDirective<T extends GlobalState> implements O
             }),
             this.stateService.isTransitioning$.subscribe(t => this.isTransitioning = t),
             this.stateService.warning$.subscribe(w => {
-                console.log(w);
                 if (w === false) {
                     this.notificationService.cancel(this.warningId);
                 } else {

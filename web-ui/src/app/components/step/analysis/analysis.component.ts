@@ -141,10 +141,11 @@ export class AnalysisComponent extends StepDirective<GlobalState> implements OnI
         private reconstructorService: ReconstructorService,
         private resultsService: ResultsService,
         private parseService: ParseService,
+        notificationService: NotificationService,
         private ngZone: NgZone,
         stateService: StateService<GlobalState>
     ) {
-        super(stateService);
+        super(stateService, notificationService);
     }
 
     ngOnInit() {

@@ -1,7 +1,7 @@
 import { Component, Input, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
 import { faExpand } from '@fortawesome/free-solid-svg-icons';
 import { StepDirective } from '../step.directive';
-import { StateService } from '../../../services/_index';
+import { NotificationService, StateService } from '../../../services/_index';
 import { GlobalStateExampleBased, StepType } from '../../../pages/multi-step-page/steps';
 import { TreeVisualizerDisplay } from '../../tree-visualizer/tree-visualizer.component';
 
@@ -22,8 +22,8 @@ export class ParseComponent extends StepDirective<GlobalStateExampleBased> imple
     public stepType = StepType.Parse;
     public warning?: string;
 
-    constructor(stateService: StateService<GlobalStateExampleBased>) {
-        super(stateService);
+    constructor(stateService: StateService<GlobalStateExampleBased>, notificationService: NotificationService) {
+        super(stateService, notificationService);
     }
 
     public getWarningMessage(): string | void {

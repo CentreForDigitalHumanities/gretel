@@ -7,14 +7,14 @@ import { Subscription } from 'rxjs';
 
 import { Crumb } from '../../components/breadcrumb-bar/breadcrumb-bar.component';
 import { GlobalState, Step } from './steps';
-import { FilterValues, TreebankService, StateService } from '../../services/_index';
+import { FilterValues, TreebankService, StateService, NotificationService } from '../../services/_index';
 import { TreebankSelection } from '../../treebank';
 
 @Directive()
 export abstract class MultiStepPageDirective<T extends GlobalState> implements OnDestroy, OnInit {
     public crumbs: Crumb[];
     public globalState: Readonly<T>;
-    public warning: string | false;
+    private warningId: number;
     /**
      * Whether the next step is currently being resolved
      */
@@ -30,7 +30,8 @@ export abstract class MultiStepPageDirective<T extends GlobalState> implements O
         private route: ActivatedRoute,
         private router: Router,
         public treebankService: TreebankService,
-        public stateService: StateService<T>) {
+        public stateService: StateService<T>,
+        protected notificationService: NotificationService) {
     }
 
     ngOnDestroy() {
@@ -65,7 +66,14 @@ export abstract class MultiStepPageDirective<T extends GlobalState> implements O
                 }
             }),
             this.stateService.isTransitioning$.subscribe(t => this.isTransitioning = t),
-            this.stateService.warning$.subscribe(w => this.warning = w)
+            this.stateService.warning$.subscribe(w => {
+                console.log(w);
+                if (w === false) {
+                    this.notificationService.cancel(this.warningId);
+                } else {
+                    this.warningId = this.notificationService.add(w, 'error');
+                }
+            })
         ];
     }
 

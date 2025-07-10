@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
 import { StepDirective } from '../step.directive';
-import { StateService } from '../../../services/_index';
+import { NotificationService, StateService } from '../../../services/_index';
 import { GlobalStateExampleBased, StepType } from '../../../pages/multi-step-page/steps';
 
 @Component({
@@ -21,8 +21,8 @@ export class SentenceInputComponent extends StepDirective<GlobalStateExampleBase
     @Input()
     public inputSentence: string;
 
-    constructor(stateService: StateService<GlobalStateExampleBased>) {
-        super(stateService);
+    constructor(stateService: StateService<GlobalStateExampleBased>, notificationService: NotificationService) {
+        super(stateService, notificationService);
     }
 
     public getWarningMessage() {

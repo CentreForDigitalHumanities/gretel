@@ -4,7 +4,7 @@
  * This component is used as parent for the steps in the xpath-search page
  */
 import { EventEmitter, Output, OnInit, OnDestroy, Directive } from '@angular/core';
-import { StateService } from '../../services/_index';
+import { NotificationService, StateService } from '../../services/_index';
 import { StepType, GlobalState } from '../../pages/multi-step-page/steps';
 import { Observable } from 'rxjs';
 
@@ -14,7 +14,7 @@ export abstract class StepDirective<T extends GlobalState> implements OnInit, On
     public valid = false;
     protected state$: Observable<T>;
 
-    constructor(protected stateService: StateService<T>) {
+    constructor(protected stateService: StateService<T>, protected notificationService: NotificationService) {
         this.state$ = this.stateService.state$;
     }
 
@@ -33,5 +33,7 @@ export abstract class StepDirective<T extends GlobalState> implements OnInit, On
     }
 
     ngOnDestroy() {
+        // clear any notifications when leaving the step
+        this.notificationService.cancelAll();
     }
 }

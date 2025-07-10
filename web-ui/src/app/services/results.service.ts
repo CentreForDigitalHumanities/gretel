@@ -110,6 +110,7 @@ export class ResultsService {
         const observable = new Observable<SearchResults>(observer => {
             const worker = async () => {
                 let queryId: number = undefined;
+                let notificationId = -1;
                 let retrievedMatches: number = 0;
 
                 while (!observer.closed) {
@@ -142,9 +143,10 @@ export class ResultsService {
                             // TODO maybe not the nicest way to show progress
                             const percentage = Math.round(results.searchPercentage)
                             if (!results.cancelled) {
-                                this.notificationService.add(
+                                notificationId = this.notificationService.add(
                                     "Searching at " +
-                                    percentage + "%", "success"
+                                    percentage + "%", "success",
+                                    percentage
                                 );
                             } else {
                                 this.notificationService.add(
@@ -159,6 +161,9 @@ export class ResultsService {
                                     // TODO work on error notifications
                                     this.notificationService.add('Errors occured while searching (check JavaScript console).');
                                     console.log(results.errors);
+                                }
+                                else {
+                                    this.notificationService.cancel(notificationId);
                                 }
                                 observer.complete();
                             }

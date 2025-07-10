@@ -1,6 +1,7 @@
 @import "../../../../colors";
 
 .navbar {
+
     // mobile by default falls back to other colors
     a.navbar-item,
     .navbar-link {
@@ -27,4 +28,16 @@
     position: sticky;
     top: 0;
     z-index: 200;
+}
+
+$progress-transition: width 0.5s ease;
+
+.progress::-webkit-progress-value {
+    transition: $progress-transition;
+}
+
+// super weird bug where putting both in a single selector breaks webkit browser
+// (at least Chromium 134 on my machine)
+.progress::-moz-progress-bar {
+    transition: $progress-transition;
 }

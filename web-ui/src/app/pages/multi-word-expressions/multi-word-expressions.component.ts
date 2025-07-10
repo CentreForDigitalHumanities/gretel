@@ -21,7 +21,7 @@ export function IsMweState(state: GlobalState): state is MweState {
 }
 
 interface MweState extends GlobalState {
-    canonicalForm: {text: string, id?:number};
+    canonicalForm: { text: string, id?: number };
     querySet: MweQuerySet;
     currentQuery: MweQuery;
 }
@@ -43,7 +43,7 @@ class MweResultsStep extends ResultsStep<MweState> {
             state.valid = true;
             state.currentStep = this;
         }
-        catch(err) {
+        catch (err) {
             this.notificationService.add('Could not generate queries for expression', 'error');
         }
 
@@ -77,8 +77,8 @@ export class MultiWordExpressionsComponent extends MultiStepPageDirective<MweSta
     canonicalForms: Promise<MweCanonicalForm[]>;
 
     constructor(treebankService: TreebankService, stateService: StateService<MweState>,
-                mweService: MweService, route: ActivatedRoute, router: Router, private notificationService: NotificationService) {
-        super(route, router, treebankService, stateService);
+        mweService: MweService, route: ActivatedRoute, router: Router, notificationService: NotificationService) {
+        super(route, router, treebankService, stateService, notificationService);
         this.mweService = mweService;
 
         this.canonicalForms = this.mweService.getCanonical();
@@ -106,7 +106,7 @@ export class MultiWordExpressionsComponent extends MultiStepPageDirective<MweSta
     encodeGlobalState(state: MweState) {
         return Object.assign(super.encodeGlobalState(state), {
             'canonicalForm': JSON.stringify(state.canonicalForm),
-            'currentQuery': JSON.stringify({rank:state.currentQuery.rank, description:state.currentQuery.description}),
+            'currentQuery': JSON.stringify({ rank: state.currentQuery.rank, description: state.currentQuery.description }),
             // clear the xpath expression in the URL to save space (see GH issue #47)
             'xpath': '',
         });
@@ -123,24 +123,24 @@ export class MultiWordExpressionsComponent extends MultiStepPageDirective<MweSta
         };
     }
 
-    async startWithExpression(canonicalForm: {text: string, id?: number}) {
-        this.stateService.setState({canonicalForm});
+    async startWithExpression(canonicalForm: { text: string, id?: number }) {
+        this.stateService.setState({ canonicalForm });
         this.setValid(true);
         this.next();
     }
 
     proceedWithQuery(query: MweQuery) {
-        this.stateService.setState({xpath: query.xpath, currentQuery: query});
+        this.stateService.setState({ xpath: query.xpath, currentQuery: query });
         this.setValid(true);
         this.next();
     }
 
     async updateXPath(xpath: string) {
-        this.stateService.setState({xpath});
+        this.stateService.setState({ xpath });
     }
 
     changeQuery(query: MweQuery) {
-        this.stateService.setState({currentQuery: query});
+        this.stateService.setState({ currentQuery: query });
         this.updateXPath(query.xpath);
     }
 

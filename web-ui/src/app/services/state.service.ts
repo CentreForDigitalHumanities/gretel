@@ -2,28 +2,15 @@ import { Injectable } from '@angular/core';
 
 import { GlobalState, Step } from '../pages/multi-step-page/steps';
 import { StepDirective } from '../components/step/step.directive';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, filter, firstValueFrom, Observable } from 'rxjs';
 
-class ExternalPromise<T> {
-    resolve: (value: T | PromiseLike<T>) => void;
-    reject: (reason: any) => void;
-    resolved: boolean;
-
-    promise = new Promise<T>((resolve, reject) => {
-        this.resolve = (value: T) => {
-            this.resolved = true;
-            resolve(value);
-        };
-        this.reject = reject;
-    });
-}
 
 /**
  * A transition is used to determine the next step to go to, given the global state and the event that is triggered
  */
 class SharedInstance<T extends GlobalState> {
     private steps: Step<T>[];
-    private currentStepDirective = new ExternalPromise<StepDirective<T>>();
+    private currentStepDirective$ = new BehaviorSubject<StepDirective<T> | false>(false);
     isTransitioning$ = new BehaviorSubject<boolean>(false);
     warning$ = new BehaviorSubject<string | false>(false);
     state$: BehaviorSubject<T & {
@@ -40,12 +27,7 @@ class SharedInstance<T extends GlobalState> {
     }
 
     subscribe(stepDirective: StepDirective<T>) {
-        if (this.currentStepDirective.resolved) {
-            // already resolved, this can happen on load (the first step is already rendered)
-            this.currentStepDirective = new ExternalPromise();
-        }
-
-        this.currentStepDirective.resolve(stepDirective);
+        this.currentStepDirective$.next(stepDirective);
     }
 
     dispose() {
@@ -53,6 +35,7 @@ class SharedInstance<T extends GlobalState> {
         this.warning$.unsubscribe();
     }
 
+    // private currentStepDirect
     /**
      * Go back one step
      */
@@ -101,6 +84,10 @@ class SharedInstance<T extends GlobalState> {
         return state;
     }
 
+    private async currentStepDirectiveAsync() {
+        return <StepDirective<T>>await firstValueFrom(this.currentStepDirective$.pipe(filter(d => d !== false)));
+    }
+
     /**
      * Transition the state, creates the new state and marks that a new
      * step component should be rendered.
@@ -110,7 +97,13 @@ class SharedInstance<T extends GlobalState> {
     private async jumpState(state: T, stepNumber: number, emit: EmitType = 'history') {
         const { newState, newComponent } = await this.jumpNewState(state, stepNumber);
         if (newComponent) {
-            this.currentStepDirective = new ExternalPromise();
+            const currentStepDirective = this.currentStepDirective$.value;
+            if (currentStepDirective !== false && newState.currentStep.type !== currentStepDirective.stepType) {
+                // the component might have already been rendered
+                // which is a bit odd but this can happen during loading
+                // (some weird race condition which is resolved by this)
+                this.currentStepDirective$.next(false);
+            }
         }
         this.isTransitioning$.next(false);
         return this.setState(newState, emit);
@@ -158,7 +151,8 @@ class SharedInstance<T extends GlobalState> {
 
     private async showWarning(stepNumber: number) {
         const targetStep = this.steps[stepNumber];
-        const currentStep = await this.currentStepDirective.promise;
+        const currentStep = await this.currentStepDirectiveAsync();
+        console.log(currentStep, targetStep);
         if (currentStep.stepType === targetStep.type) {
             this.warning$.next(currentStep.getWarningMessage() || false);
         }

@@ -129,8 +129,6 @@
             </div>
         </h2>
         <grt-xpath-viewer *ngIf="!isCustomXPath" (click)="editXPath()" [value]="xpath"></grt-xpath-viewer>
-        <div class="notification is-danger" *ngIf="isCustomXPath && warning">Please make sure the xpath query is
-            correct.</div>
         <grt-xpath-editor *ngIf="isCustomXPath" width="100%" [value]="xpath" (onChange)="changeCustomXpath($event)"
             autofocus="true"></grt-xpath-editor>
         <p *ngIf="!isCustomXPath">

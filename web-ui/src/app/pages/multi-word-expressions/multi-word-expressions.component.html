@@ -48,5 +48,4 @@
     </grt-analysis>
 </div>
 <br />
-<div *ngIf="warning" class="notification is-danger warning">{{warning}}</div>
 <grt-step-buttons (prev)="prev()" (next)="next()" [currentStep]="globalState?.currentStep?.number" [steps]="crumbs.length"></grt-step-buttons>

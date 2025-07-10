@@ -14,7 +14,6 @@ import {
 } from 'rxjs/operators';
 
 import { ValueEvent } from 'lassy-xpath';
-import { ClipboardService } from 'ngx-clipboard';
 
 import { animations } from '../../../animations';
 import {
@@ -126,14 +125,13 @@ export class ResultsComponent extends StepDirective<GlobalState> implements OnIn
     private variableProperties: GlobalState['variableProperties'];
 
     constructor(private downloadService: DownloadService,
-        private clipboardService: ClipboardService,
-        private notificationService: NotificationService,
+        notificationService: NotificationService,
         private resultsService: ResultsService,
         protected resultsStreamService: ResultsStreamService,
         private parseService: ParseService,
         stateService: StateService<GlobalState>
     ) {
-        super(stateService);
+        super(stateService, notificationService);
         this.changeValid = new EventEmitter();
     }
 
@@ -182,7 +180,7 @@ export class ResultsComponent extends StepDirective<GlobalState> implements OnIn
                         }
                         case NotificationKind.ERROR: {
                             // treebank has errored out!
-                            this.notificationService.add(`Error retrieving results for ${r.corpus.name}: \n${r.result.error.message}`);
+                            this.notificationService.add(`Error retrieving results for ${r.corpus.name}: \n${r.result.error.message}`, 'error');
                             break;
                         }
                         case NotificationKind.NEXT: {

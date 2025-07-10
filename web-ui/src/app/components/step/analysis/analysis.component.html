@@ -1,4 +1,4 @@
-<div class="notification is-primary explanation" *ngIf="renderCount && showExplanation" [@slideDown]>
+<div [ngClass]="{'is-sticky': !isLoading}" class="notification is-primary explanation" *ngIf="renderCount && showExplanation" [@slideDown]>
     <button class="delete" (click)="showExplanation = false"></button>
     <p>Drag nodes from the <strong>XPath query</strong> or the <strong>tree</strong> into the analysis table below to
         analyse its properties. Multiple nodes can be selected by clicking on them.</p>
@@ -101,7 +101,7 @@
         <h1 class="title" [ngClass]="{'is-loading': isLoading}" grtSubtitle>Analysis Table</h1>&nbsp;
     </div>
     <div class="level-right">
-        <div class="level-item" *ngIf="canShowMore" pTooltip="More data is ready to be shown in the table">
+        <div class="level-item" *ngIf="canShowMore" pTooltip="More data is ready to be shown in the table" tooltipPosition="bottom">
             <a class="button has-badge-rounded" [ngClass]="{'has-badge-warning': isLoading}" role="button"
                 (click)="showMore()" [attr.data-badge]="hitsCount - renderCount | transitionNumbers">
                 Show More Data

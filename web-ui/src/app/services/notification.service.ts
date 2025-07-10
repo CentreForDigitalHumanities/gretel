@@ -5,6 +5,7 @@ import { Subject } from 'rxjs';
 export type Notification = {
     id: number,
     message: string,
+    progress?: number,
     type: 'error' | 'warning' | 'success'
 } | {
     id: number,
@@ -30,12 +31,13 @@ export class NotificationService {
         return id;
     }
 
-    add(message: string, type: Notification['type'] = 'warning') {
+    add(message: string, type: Notification['type'] = 'warning', progress?: number) {
         const id = NotificationService.counter++;
         NotificationService.notifications$.next({
             id,
             message,
-            type
+            type,
+            progress
         });
         return id;
     }

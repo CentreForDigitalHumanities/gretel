@@ -16,6 +16,9 @@
     </grt-navigation>
 </nav>
 <div class="notification is-radiusless" *ngIf="show" [ngClass]="messageType" [@slideDown]>
-    <button class="delete" (click)="show=false"></button>
+    <button *ngIf="!progress" class="delete" (click)="show=false"></button>
     {{message}}
+    <div *ngIf="progress" [@slideDown]>
+        <progress class="progress is-secondary" [value]="progress" max="100">{{progress}}%</progress>
+    </div>
 </div>

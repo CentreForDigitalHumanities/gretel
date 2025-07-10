@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { StateService, TreebankService, EmitType } from '../../services/_index';
+import { StateService, TreebankService, EmitType, NotificationService } from '../../services/_index';
 import { MultiStepPageDirective } from '../multi-step-page/multi-step-page.directive';
 import {
     AnalysisStep,
@@ -40,8 +40,8 @@ export class XpathSearchComponent extends MultiStepPageDirective<GlobalState> im
         loading: false
     };
 
-    constructor(treebankService: TreebankService, stateService: StateService<GlobalState>, route: ActivatedRoute, router: Router) {
-        super(route, router, treebankService, stateService);
+    constructor(treebankService: TreebankService, stateService: StateService<GlobalState>, notificationService: NotificationService, route: ActivatedRoute, router: Router) {
+        super(route, router, treebankService, stateService, notificationService);
     }
 
     initializeSteps(): { step: Step<GlobalState>, name: string }[] {

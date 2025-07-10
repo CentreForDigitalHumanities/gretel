@@ -7,7 +7,7 @@ import { Subscription } from 'rxjs';
 import { animations } from '../../../animations';
 import { GlobalStateExampleBased, StepType } from '../../../pages/multi-step-page/steps';
 import { Treebank, TreebankSelection } from '../../../treebank';
-import { StateService, TreebankService, TreebankSelectionService } from '../../../services/_index';
+import { StateService, TreebankService, TreebankSelectionService, NotificationService } from '../../../services/_index';
 import { StepDirective } from '../step.directive';
 import { UserProvider } from './select-treebank-providers.component';
 import { comparatorGenerator } from '../../util';
@@ -67,8 +67,9 @@ export class SelectTreebanksComponent extends StepDirective<GlobalStateExampleBa
 
     constructor(treebankService: TreebankService,
         private treebankSelectionService: TreebankSelectionService,
-        stateService: StateService<GlobalStateExampleBased>) {
-        super(stateService);
+        stateService: StateService<GlobalStateExampleBased>,
+        notificationService: NotificationService) {
+        super(stateService, notificationService);
 
         this.subscriptions = [
             treebankService.treebanks.pipe(

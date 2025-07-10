@@ -22,6 +22,7 @@ export class HeaderComponent implements OnDestroy, OnInit {
     private subscriptions: Subscription[] = [];
     private messageId: number;
     message: string;
+    progress?: number;
     messageType: 'is-warning' | 'is-danger' | 'is-success';
     menuExpanded = false;
     show = false;
@@ -57,6 +58,7 @@ export class HeaderComponent implements OnDestroy, OnInit {
 
                 this.message = notification.message;
                 this.messageId = notification.id;
+                this.progress = notification.progress;
                 this.show = true;
             })
         ];

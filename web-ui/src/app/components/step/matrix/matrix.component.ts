@@ -73,7 +73,6 @@ export class MatrixComponent extends StepDirective<GlobalStateExampleBased> impl
 
     public filename: string;
     public subTreeDisplay: TreeVisualizerDisplay = 'inline';
-    public warning: boolean;
 
     public indexedTokens: IndexedToken[];
     public showAdvanced: boolean;
@@ -89,8 +88,8 @@ export class MatrixComponent extends StepDirective<GlobalStateExampleBased> impl
 
     constructor(stateService: StateService<GlobalStateExampleBased>,
         private confirmationService: ConfirmationService,
-        private notificationService: NotificationService) {
-        super(stateService);
+        notificationService: NotificationService) {
+        super(stateService, notificationService);
         this.subscriptions = [
             this.state$.subscribe(state => {
                 this.ignoreTopNode = state.ignoreTopNode;
@@ -204,7 +203,7 @@ export class MatrixComponent extends StepDirective<GlobalStateExampleBased> impl
     }
 
     public getWarningMessage() {
-        this.warning = true;
+        return 'Please make sure the xpath query is correct.';
     }
 
     ngOnInit() {

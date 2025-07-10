@@ -46,12 +46,12 @@ export class ExampleBasedSearchComponent extends MultiStepPageDirective<GlobalSt
         private alpinoService: AlpinoService,
         private extractinatorService: ExtractinatorService,
         private reconstructorService: ReconstructorService,
-        private notificationService: NotificationService,
+        notificationService: NotificationService,
         treebankService: TreebankService,
         stateService: StateService<GlobalStateExampleBased>,
         route: ActivatedRoute,
         router: Router) {
-        super(route, router, treebankService, stateService);
+        super(route, router, treebankService, stateService, notificationService);
     }
 
     encodeGlobalState(state: GlobalStateExampleBased) {

@@ -28,10 +28,9 @@ import {
 import { FileExportRenderer } from './file-export-renderer';
 import { TreebankMetadata } from '../../../treebank';
 import { StepDirective } from '../step.directive';
-import { GlobalState, StepType, getSearchVariables } from '../../../pages/multi-step-page/steps';
+import { GlobalState, IsMweState, StepType, getSearchVariables } from '../../../pages/multi-step-page/steps';
 import { AddNodeEvent } from '../../node-properties/node-properties-editor.component';
 import { TreeVisualizerDisplay } from '../../tree-visualizer/tree-visualizer.component';
-import { IsMweState } from '../../../pages/multi-word-expressions/multi-word-expressions.component';
 
 const MweAttributes = [
     '#mwe_arguments_heads_fringe',

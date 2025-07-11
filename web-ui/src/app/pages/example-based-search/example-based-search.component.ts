@@ -65,7 +65,7 @@ export class ExampleBasedSearchComponent extends MultiStepPageDirective<GlobalSt
         });
     }
 
-    decodeGlobalState(queryParams: { [key: string]: any }): { [K in keyof GlobalStateExampleBased]?: GlobalStateExampleBased[K] } {
+    decodeGlobalState(queryParams: { [key: string]: any }) {
         let attributes: string[];
         let isCustomXPath: boolean;
         if (Array.isArray(queryParams.attributes)) {

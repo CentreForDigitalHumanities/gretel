@@ -19,7 +19,7 @@ export class SentenceInputComponent extends StepDirective<GlobalStateExampleBase
     public next = new EventEmitter();
 
     @Input()
-    public inputSentence: string;
+    public inputSentence: string = '';
 
     constructor(stateService: StateService<GlobalStateExampleBased>, notificationService: NotificationService) {
         super(stateService, notificationService);

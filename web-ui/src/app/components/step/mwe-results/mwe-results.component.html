@@ -3,21 +3,28 @@
     <div class="panel-heading">Query</div>
     <div class="panel-block columns is-desktop">
         <div class="column is-half-desktop">
-            <div class="block">
-                <div>Canonical form: <strong>{{ canonicalForm }}</strong></div>
+            <div class="columns is-gapless is-vcentered">
+                <div class="column is-narrow">
+                    Canonical form:&nbsp;
+                </div>
+                <div class="column">
+                    <strong class="canonical-form">{{ canonicalForm }}</strong>
+                </div>
             </div>
-            <div>Showing query:
-                <grt-results-query-menu
-                    [currentQuery]="currentQuery"
-                    [querySet]="querySet"
-                    (changeQuery)="changeQuery.emit($event)"
-                ></grt-results-query-menu>
+            <div class="columns is-gapless is-vcentered">
+                <div class="column is-narrow">
+                    Showing query:&nbsp;
+                </div>
+                <div class="column">
+                    <grt-results-query-menu [currentQuery]="currentQuery" [querySet]="querySet"
+                        (changeQuery)="changeQuery.emit($event)"></grt-results-query-menu>
+                </div>
             </div>
             <em *ngIf="isQueryAdjusted()">* query is manually adjusted</em>
         </div>
         <div class="column">
             <div *ngFor="let query of querySet">
-                <label *ngIf="query.rank < currentQuery.rank">
+                <label class="checkbox" *ngIf="query.rank < currentQuery.rank">
                     <input type="checkbox" [checked]="excludeQuery[query.rank]" (change)="toggleExclude(query, $event)" />
                     Exclude results from query {{ query.rank }}: {{ query.description }}
                 </label>

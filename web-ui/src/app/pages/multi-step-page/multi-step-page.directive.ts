@@ -83,8 +83,8 @@ export abstract class MultiStepPageDirective<T extends GlobalState> implements O
      * @param queryParams
      */
     abstract decodeGlobalState(queryParams: { [key: string]: any }): {
-        [K in Exclude<keyof GlobalState,
-            keyof ReturnType<MultiStepPageDirective<T>['decodeGlobalStateCommon']>>]?: GlobalState[K] | undefined
+        [K in Exclude<keyof T,
+            keyof ReturnType<MultiStepPageDirective<T>['decodeGlobalStateCommon']>>]?: T[K] | undefined
     };
 
     protected decodeGlobalStateCommon(queryParams: { [key: string]: any }) {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { StateService, TreebankService, MweService } from '../../services/_index';
@@ -7,24 +7,13 @@ import { MultiStepPageDirective } from '../multi-step-page/multi-step-page.direc
 import { NotificationService } from '../../services/notification.service';
 
 import {
-    GlobalState, SentenceInputStep, Step, SelectTreebankStep,
-    ResultsStep, AnalysisStep
+    CanonicalFormInputStep, Step, SelectTreebankStep,
+    ResultsStep, AnalysisStep,
+    MweState
 } from '../multi-step-page/steps';
 import { TreebankSelection } from '../../treebank';
 
-import { MweQuery, MweQuerySet } from '../../services/mwe.service';
-
-export function IsMweState(state: GlobalState): state is MweState {
-    // to make sure this has to be updated on a refactor
-    const property: keyof MweState = 'querySet';
-    return state.hasOwnProperty(property);
-}
-
-interface MweState extends GlobalState {
-    canonicalForm: { text: string, id?: number };
-    querySet: MweQuerySet;
-    currentQuery: MweQuery;
-}
+import { MweQuery } from '../../services/mwe.service';
 
 class MweResultsStep extends ResultsStep<MweState> {
     constructor(number: number, private mweService: MweService, private notificationService: NotificationService) {
@@ -56,7 +45,7 @@ class MweResultsStep extends ResultsStep<MweState> {
     templateUrl: './multi-word-expressions.component.html',
     styleUrls: ['./multi-word-expressions.component.scss']
 })
-export class MultiWordExpressionsComponent extends MultiStepPageDirective<MweState> implements OnInit {
+export class MultiWordExpressionsComponent extends MultiStepPageDirective<MweState> {
     protected defaultGlobalState: MweState = {
         connectionError: false,
         currentStep: undefined,
@@ -64,29 +53,28 @@ export class MultiWordExpressionsComponent extends MultiStepPageDirective<MweSta
         loading: false,
         retrieveContext: false,
         selectedTreebanks: new TreebankSelection(this.treebankService),
-        valid: true,
+        valid: false,
         variableProperties: undefined,
         xpath: '',
-        canonicalForm: null,
+        canonicalForm: {
+            text: ''
+        },
         querySet: undefined,
         currentQuery: null,
     };
 
-    private mweService: MweService;
     steps: Step<MweState>[];
     canonicalForms: Promise<MweCanonicalForm[]>;
 
     constructor(treebankService: TreebankService, stateService: StateService<MweState>,
-        mweService: MweService, route: ActivatedRoute, router: Router, notificationService: NotificationService) {
+        private mweService: MweService, route: ActivatedRoute, router: Router, notificationService: NotificationService) {
         super(route, router, treebankService, stateService, notificationService);
-        this.mweService = mweService;
-
         this.canonicalForms = this.mweService.getCanonical();
     }
 
     initializeSteps(): { step: Step<MweState>, name: string }[] {
         return [{
-            step: new SentenceInputStep(0),
+            step: new CanonicalFormInputStep(0),
             name: 'Canonical form'
         },
         {
@@ -106,7 +94,9 @@ export class MultiWordExpressionsComponent extends MultiStepPageDirective<MweSta
     encodeGlobalState(state: MweState) {
         return Object.assign(super.encodeGlobalState(state), {
             'canonicalForm': JSON.stringify(state.canonicalForm),
-            'currentQuery': JSON.stringify({ rank: state.currentQuery.rank, description: state.currentQuery.description }),
+            'currentQuery': state.currentQuery
+                ? JSON.stringify({ rank: state.currentQuery.rank, description: state.currentQuery.description })
+                : undefined,
             // clear the xpath expression in the URL to save space (see GH issue #47)
             'xpath': '',
         });
@@ -119,14 +109,23 @@ export class MultiWordExpressionsComponent extends MultiStepPageDirective<MweSta
                 queryParams.selectedTreebanks ? JSON.parse(queryParams.selectedTreebanks) : undefined),
             canonicalForm: JSON.parse(queryParams.canonicalForm ?? '{}'),
             currentQuery: JSON.parse(queryParams.currentQuery ?? '{}'),
-            valid: true
         };
     }
 
-    async startWithExpression(canonicalForm: { text: string, id?: number }) {
-        this.stateService.setState({ canonicalForm });
-        this.setValid(true);
-        this.next();
+    async startWithExpression(canonicalForm: { text: string, id?: number, stay?: boolean }) {
+        this.stateService.setState({
+            canonicalForm: {
+                text: canonicalForm.text,
+                id: canonicalForm.id
+            }
+        });
+        const valid = canonicalForm.text?.trim()?.length > 0;
+        this.setValid(valid);
+        if (!canonicalForm.stay) {
+            if (valid) {
+                this.next();
+            }
+        }
     }
 
     proceedWithQuery(query: MweQuery) {

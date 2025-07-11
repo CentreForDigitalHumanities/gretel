@@ -3,7 +3,7 @@ import { ExtractinatorService, ReconstructorService, PathVariable } from 'lassy-
 import { DefaultTokenAttributes, TokenAttributes } from '../../models/matrix';
 import { AlpinoService } from '../../services/alpino.service';
 import { TreebankService } from '../../services/treebank.service';
-import { FilterValues, SearchVariable, NotificationService } from '../../services/_index';
+import { FilterValues, SearchVariable, NotificationService, MweQuerySet, MweQuery } from '../../services/_index';
 import { TreebankSelection } from '../../treebank';
 
 /**
@@ -79,8 +79,21 @@ interface GlobalStateExampleBased extends GlobalState {
     respectOrder: boolean;
 }
 
+export function IsMweState(state: GlobalState): state is MweState {
+    // to make sure this has to be updated on a refactor
+    const property: keyof MweState = 'querySet';
+    return state.hasOwnProperty(property);
+}
+
+export interface MweState extends GlobalState {
+    canonicalForm: { text: string, id?: number };
+    querySet: MweQuerySet;
+    currentQuery: MweQuery;
+}
+
 enum StepType {
     SentenceInput,
+    CanonicalFormInput,
     Matrix,
     Parse,
     XpathInput,
@@ -108,7 +121,21 @@ class SentenceInputStep<T extends GlobalState> extends Step<T> {
 
     async enterStep(state: T) {
         state.currentStep = this;
-        state.valid = state.inputSentence && state.inputSentence.length > 0;
+        state.valid = state.inputSentence && state.inputSentence?.trim()?.length > 0;
+        return state;
+    }
+
+    leaveStep(state: T) {
+        return state;
+    }
+}
+
+class CanonicalFormInputStep<T extends MweState> extends Step<T> {
+    type = StepType.CanonicalFormInput;
+
+    async enterStep(state: T) {
+        state.currentStep = this;
+        state.valid = state.canonicalForm && state.canonicalForm.text?.trim()?.length > 0;
         return state;
     }
 
@@ -324,6 +351,7 @@ export {
     SelectTreebankStep,
     ResultsStep,
     SentenceInputStep,
+    CanonicalFormInputStep,
     ParseStep,
     MatrixStep
 };

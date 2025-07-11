@@ -5,7 +5,7 @@
         *ngSwitchCase="0"
         title="Canonical form expressions"
         [sentences]="(canonicalForms | async) ?? []"
-        (onSelect)="startWithExpression($event)"
+        (onChange)="startWithExpression($event)"
     >
     </grt-sentence-collection>
     <grt-select-treebanks
@@ -48,4 +48,4 @@
     </grt-analysis>
 </div>
 <br />
-<grt-step-buttons (prev)="prev()" (next)="next()" [currentStep]="globalState?.currentStep?.number" [steps]="crumbs.length"></grt-step-buttons>
+<grt-step-buttons *ngIf="globalState?.currentStep?.number > 0" (prev)="prev()" (next)="next()" [currentStep]="globalState?.currentStep?.number" [steps]="crumbs.length"></grt-step-buttons>

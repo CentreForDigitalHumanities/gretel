@@ -7,10 +7,12 @@
             <div class="field has-addons">
                 <div class="control is-expanded">
                     <input type="text" class="input" placeholder="Please give a sentence" [value]="inputSentence"
-                        (keyup)="inputChanges($event)" spellcheck="true" lang="nl" [ngClass]="{'is-danger':warning}">
+                        (keyup)="inputChanges($event)" (change)="inputChanges($event)" spellcheck="true" lang="nl"
+                        [ngClass]="{'is-danger':warning}">
                 </div>
                 <div class="control">
-                    <button type="submit" class="button" [ngClass]="{'is-danger':warning, 'is-primary': !warning}">Parse</button>
+                    <button type="submit" class="button" [disabled]="inputSentence.length === 0"
+                        [ngClass]="{'is-danger':warning, 'is-primary': !warning}">Parse</button>
                 </div>
             </div>
         </div>

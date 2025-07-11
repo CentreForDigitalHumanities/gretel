@@ -2,40 +2,46 @@
     {{ title }}
 </h2>
 
-<form>
+<form (ngSubmit)="submit()">
     <div class="field has-addons">
         <div class="control is-expanded">
             <input type="text" class="input"
                    autocomplete="off"
                    placeholder="Start typing an expression, or a list of words" spellcheck="true" lang="nl"
                    name="filterString"
-                   [(ngModel)]="filterString">
+                   [ngClass]="{'is-danger':warning}"
+                   [value]="filterString"
+                   (keyup)="filterStringChanged($event)"
+                   (change)="filterStringChanged($event)">
+        </div>
+        <div class="control">
+            <button type="submit" class="button" [disabled]="filterString.length === 0" [ngClass]="{'is-danger':warning, 'is-primary': !warning}">Search</button>
         </div>
     </div>
 </form>
 
-<div *ngIf="count() === 0" class="block">
+<div *ngIf="count === 0 && filterString.trim().length" class="block">
     <p class="mt-3">The query "{{ filterString }}" does not match a known multiword expression.</p>
     <p class="mt-3">To search for <strong>{{ filterString }}</strong> as an expression,
-        <a (click)="onSelect.emit({text: filterString})">click here</a>.
+        <a (click)="onChange.emit({text: filterString})">click here</a>.
     </p>
 </div>
 
 
-<div *ngIf="count() > 0">
+<div *ngIf="count > 0">
     <div class="block mt-3">
-        Showing {{ visible() | transitionNumbers:true }} out of {{ count() | transitionNumbers:true }} matching known expressions:
+        Showing {{ visible() | transitionNumbers:true }} out of {{ count | transitionNumbers:true }} matching known expressions:
     </div>
     <table class="table is-fullwidth">
-        <tr *ngFor="let sent of sentences"
+        <tr *ngFor="let sent of visibleSentences"
             class="result"
-            (click)="onSelect.emit(sent)">
+            (click)="onChange.emit(sent)">
             <td>{{sent.text}}</td>
         </tr>
         <tr *ngIf="filterString.length > 3" class="result">
-            <td (click)="onSelect.emit({text: filterString})">Click here to search for "{{ filterString }}"</td>
+            <td (click)="onChange.emit({text: filterString})">Click here to search for "{{ filterString }}"</td>
         </tr>
     </table>
 
-    <a (click)="showMore()">Show more...</a>
+    <a *ngIf="visible() < count" (click)="showMore()">Show more...</a>
 </div>

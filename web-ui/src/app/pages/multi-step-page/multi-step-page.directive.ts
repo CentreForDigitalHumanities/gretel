@@ -122,7 +122,7 @@ export abstract class MultiStepPageDirective<T extends GlobalState> implements O
             ...this.decodeGlobalState(params)
         };
         this.stateService.setState(_.pickBy(decoded, (item) => item !== undefined) as any, false);
-        this.stateService.jump(parseInt(params.currentStep || '0', 10), false);
+        this.stateService.jump(parseInt(params.currentStep || '0', 10), false, true);
     }
 
     /**

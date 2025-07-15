@@ -71,9 +71,21 @@ class SharedInstance<T extends GlobalState> {
         }
     }
 
-    async jump(stepNumber: number, emit: EmitType = 'history') {
+    /**
+     * Jumps to a new step
+     * @param values the updated state
+     * @param emit should the state modify the current page in the history or add a new page?
+     * @param fromStart the first state should be entered again to recheck validation on the parameters
+     * @returns updated state
+     */
+    async jump(stepNumber: number, emit: EmitType = 'history', fromStart = false) {
         this.isTransitioning$.next(true);
-        const state = await this.jumpState(this.state$.value, stepNumber, emit);
+        let state: T = this.state$.value;
+        if (fromStart) {
+            state = await this.steps[0].enterStep(state);
+        }
+
+        state = await this.jumpState(state, stepNumber, emit);
 
         if (state.connectionError || (!state.valid && state.currentStep.number !== stepNumber)) {
             this.showWarning(state.currentStep.number);
@@ -139,6 +151,7 @@ class SharedInstance<T extends GlobalState> {
             return { newState: await this.steps[stepNumber].enterStep(newState), newComponent: true };
         }
         let newComponent = false;
+
         while (newState.currentStep.number < stepNumber && newState.valid) {
             newState.currentStep.leaveStep(newState);
             newState.connectionError = false;
@@ -157,6 +170,12 @@ class SharedInstance<T extends GlobalState> {
         }
     }
 
+    /**
+     * Sets the state
+     * @param values the updated state
+     * @param emit should the state modify the current page in the history or add a new page?
+     * @returns updated state
+     */
     setState(values: { [K in keyof GlobalState]?: GlobalState[K] }, emit: EmitType = false): T & { emit: EmitType } {
         const nextState = {
             ...this.state$.value,
@@ -238,10 +257,24 @@ export class StateService<T extends GlobalState> {
         return this.instance.next();
     }
 
-    jump(stepNumber: number, emit: EmitType = 'history'): Promise<T> {
-        return this.instance.jump(stepNumber, emit);
+    /**
+     * Jumps to a new step
+     * @param values the updated state
+     * @param emit should the state modify the current page in the history or add a new page?
+     * @param fromStart the first state should be entered again to recheck validation on the parameters
+     * @returns updated state
+     */
+    jump(stepNumber: number, emit: EmitType = 'history', fromStart = false): Promise<T> {
+        return this.instance.jump(stepNumber, emit, fromStart);
     }
 
+    /**
+     * Sets the state
+     * @param values the updated state
+     * @param emit should the state modify the current page in the history or add a new page?
+     * @param fromStart the first state should be entered again to recheck validation on the parameters
+     * @returns updated state
+     */
     setState(values: Partial<T> | Partial<GlobalState>, emit: EmitType = 'in-place'): T {
         return this.instance.setState(values, emit);
     }

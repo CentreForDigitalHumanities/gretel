@@ -27,6 +27,7 @@ export class SentenceInputComponent extends StepDirective<GlobalStateExampleBase
 
     public getWarningMessage() {
         this.warning = true;
+        return 'Sentence cannot be empty';
     }
 
     inputChanges(event: Event) {

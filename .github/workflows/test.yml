@@ -26,17 +26,16 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.9']
-        node-version: ['16.x']
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: "${{ matrix.python-version }}"
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
+    - name: Use Node.js
+      uses: actions/setup-node@v4
       with:
-        node-version: "${{ matrix.node-version }}"
+        node-version-file: .nvmrc
     - name: Install Ubuntu packages
       run: |
         sudo apt-get update

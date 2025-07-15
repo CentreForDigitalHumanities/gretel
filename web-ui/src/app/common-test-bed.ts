@@ -113,7 +113,8 @@ export function commonTestBed() {
             imports: filteredImports,
             providers: [...filteredProviders, NotificationService]
         }),
-        httpClientMock
+        httpClientMock,
+        stateService
     };
 }
 

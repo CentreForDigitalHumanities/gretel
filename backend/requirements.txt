@@ -118,7 +118,7 @@ murmurhash==1.0.10
     #   preshed
     #   spacy
     #   thinc
-mwe-query==0.2.0a1
+mwe-query==0.2.0a2
     # via -r requirements.in
 numpy==1.24.4
     # via

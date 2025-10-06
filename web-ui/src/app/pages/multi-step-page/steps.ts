@@ -222,8 +222,9 @@ class ParseStep extends Step<GlobalStateExampleBased> {
         state.valid = false;
 
         await this.alpinoService.parseSentence(state.inputSentence)
-            .then(xml => {
-                state.exampleXml = xml;
+            .then(parse => {
+                state.exampleXml = parse.xml;
+                state.inputSentence = parse.sentence;
                 state.valid = true;
             })
             .catch(e => {

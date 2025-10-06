@@ -1,4 +1,5 @@
 from typing import Optional, Tuple
+from django.utils.html import strip_tags
 from urllib.parse import unquote, unquote_plus
 import re
 from rest_framework.response import Response
@@ -41,13 +42,13 @@ def parse_post(request: Request):
             {"error": "{} is missing".format(err)}, status=status.HTTP_400_BAD_REQUEST
         )
 
-    parsed_sentence, err = parse_sentence(sentence)
+    sentence, parsed_sentence, err = parse_sentence(sentence)
     if parsed_sentence is None:
         return Response(
             {"error": "Parsing error: {}".format(err)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-    return Response({"parsed_sentence": parsed_sentence})
+    return Response({"parsed_sentence": parsed_sentence, "sentence": sentence})
 
 
 @api_view(["GET"])
@@ -61,13 +62,13 @@ def parse_get(request: Request, *_):
     # use a plain unquote if separated by spaces: we assume
     # any + is intentional and should be included in the sentence
     sentence = sentence_from_path(full_path)
-    parsed_sentence, err = parse_sentence(sentence)
+    sentence, parsed_sentence, err = parse_sentence(sentence)
     if parsed_sentence is None:
         return Response(
             {"error": "Parsing error: {}".format(err)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-    return Response({"parsed_sentence": parsed_sentence})
+    return Response({"parsed_sentence": parsed_sentence, "sentence": sentence})
 
 
 def sentence_from_path(full_path: str) -> str:
@@ -94,12 +95,24 @@ def sentence_from_path(full_path: str) -> str:
     return unquote(short_path) if "%20" in short_path else unquote_plus(short_path)
 
 
-def parse_sentence(sentence: str) -> Tuple[Optional[str], Optional[AlpinoError]]:
+def parse_sentence(sentence: str) -> Tuple[str, Optional[str], Optional[AlpinoError]]:
+    """Parses a sentence using Alpino
+
+    Args:
+        sentence (str): the sentence to parse
+
+    Returns:
+        Tuple[str, Optional[str], Optional[AlpinoError]]:
+            the sentence parsed (after cleaning);
+            the output;
+            the error (if there is no output)
+    """
+    sentence = strip_tags(sentence)
     try:
         alpino.initialize()
-        return alpino.client.parse_line(sentence, "zin"), None
+        return sentence, alpino.client.parse_line(sentence, "zin"), None
     except AlpinoError as err:
-        return None, err
+        return sentence, None, err
 
 
 @api_view(['POST'])

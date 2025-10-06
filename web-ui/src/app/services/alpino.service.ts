@@ -6,6 +6,7 @@ import { TokenAttributes, FilterValue, DefaultTokenAttributes } from '../models/
 
 type ApiParseResult = {
     parsed_sentence?: string,
+    sentence: string,
     error?: string
 }
 
@@ -44,7 +45,7 @@ export class AlpinoService {
             await this.configurationService.getDjangoUrl('parse/parse-sentence/'),
             { sentence: sentence }
         ).toPromise();
-        return response.parsed_sentence;
+        return { xml: response.parsed_sentence, sentence: response.sentence };
     }
 
     attributesToStrings(attrs: TokenAttributes[], skipDefault = false): string[] {

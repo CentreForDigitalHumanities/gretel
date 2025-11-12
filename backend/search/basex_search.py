@@ -1,9 +1,11 @@
 """Auxiliary functions to facilitate searching in BaseX."""
 
 import lxml.etree
+import elementpath
 import string
 from io import StringIO
 from typing import List
+from xml.etree import ElementTree
 
 from .types import BaseXMatch, Result
 
@@ -16,8 +18,9 @@ ALLOWED_VARNAME_CHARS = string.ascii_letters + string.digits + '-_.'
 def check_xpath(xpath: str) -> bool:
     """Return True if a string is (only) a valid XPath, otherwise False."""
     try:
-        lxml.etree.XPath(xpath)
-    except lxml.etree.XPathError:
+        dummy = ElementTree.XML('<dummy></dummy>')
+        elementpath.select(dummy, xpath)
+    except elementpath.ElementPathSyntaxError:
         return False
     else:
         return True

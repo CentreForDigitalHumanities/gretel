@@ -111,7 +111,7 @@ def parse_sentence(sentence: str) -> Tuple[str, Optional[str], Optional[AlpinoEr
     try:
         alpino.initialize()
         return sentence, alpino.client.parse_line(sentence, "zin"), None
-    except AlpinoError as err:
+    except Exception as err:
         return sentence, None, err
 
 

@@ -66,6 +66,10 @@ BaseX server can be started using:
 basexserver -s
 ```
 
+Note that BaseX generates an initial password for the `admin` user when started for the first time. The password 
+has to be passed on to  GrETEL in `backend/gretel/settings.py`. To manually set a password, start the BaseX server 
+with the `-cPASSWORD` option.
+
 Celery (used for running tasks in the background) can be started using:
 
 ```console

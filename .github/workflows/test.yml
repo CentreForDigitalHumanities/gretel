@@ -69,6 +69,7 @@ jobs:
     - name: Run all tests
       run: |
         basexserver -S
+        pip install distutils  # Required by bootstrap.py
         cat bootstrap_ci.txt | python bootstrap.py
         yarn
         yarn django migrate

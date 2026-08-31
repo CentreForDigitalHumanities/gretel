@@ -2,7 +2,6 @@
 
 import os
 import os.path as op
-from distutils import dir_util
 import glob
 import json
 import platform
@@ -232,7 +231,7 @@ def activate_frontend():
                 '--style=scss',
                 '--routing=true']
         )()
-        dir_util.copy_tree('frontend.angular', project_name)
+        shutil.copytree('frontend.angular', project_name, dirs_exist_ok=True)
         os.rename(project_name, 'frontend')
         shutil.move(op.join('frontend', 'proxy.conf.json'), 'proxy.conf.json')
         override_package_json()

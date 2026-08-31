@@ -1,4 +1,4 @@
-Django>=4.0.1,<5
+Django>=5.2,<6
 djangorestframework>=3.13.0
 django-livereload-server
 django-revproxy>=0.10.0
@@ -10,6 +10,6 @@ BaseXClient
 alpino-query>=2.1.10
 celery[redis]>=5.2.0
 mwe-query>=0.2.0a2
-urllib3<=2.0.0
+urllib3
 psycopg2
 elementpath

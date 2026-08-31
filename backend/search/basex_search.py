@@ -22,6 +22,9 @@ def check_xpath(xpath: str) -> bool:
         elementpath.select(dummy, xpath)
     except elementpath.ElementPathSyntaxError:
         return False
+    except elementpath.ElementPathError:
+        # Allow any other elementpath errors
+        return True
     else:
         return True
 

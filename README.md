@@ -12,7 +12,7 @@ GrETEL is publicly available at [https://gretel5.hum.uu.nl](https://gretel5.hum.
 You need to install the following software:
 
 - PostgreSQL >= 10, client, server and C libraries
-- Python >= 3.8, <= 3.10
+- Python >= 3.10, <= 3.13
 - virtualenv
 - WSGI-compatible webserver (deployment only)
 - [Visual C++ for Python][1] (Windows only)
